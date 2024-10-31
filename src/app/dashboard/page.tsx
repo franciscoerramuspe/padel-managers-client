@@ -8,6 +8,8 @@ import Image from "next/image";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { User } from '@supabase/supabase-js'
 import { Activity, Trophy, Users, Calendar } from 'lucide-react'
+import { SidebarProvider, SidebarTrigger } from "../../components/ui/sidebar"
+import { AppSidebar } from "../../components/app/Sidebar"
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -60,83 +62,66 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Image
-                src="/assets/logo_padel_manager.png"
-                alt="Logo"
-                width={40}
-                height={40}
-                className="mr-4"
-              />
-              <h1 className="text-xl font-semibold">Bienvenido, {user?.email}</h1>
-            </div>
-            <button 
-              onClick={() => supabase.auth.signOut()}
-              className="text-gray-600 hover:text-gray-800 px-4 py-2"
-            >
-              Cerrar sesión
-            </button>
-          </div>
-        </div>
-      </nav>
+    <SidebarProvider>
+      <div className="flex h-screen">
+        <AppSidebar />
+        <main className="flex-1 overflow-auto">
+          <div className="p-8">
+            <SidebarTrigger className="mb-4" />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-blue-50 rounded-lg">
+                    <Trophy className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm text-gray-500">Total Partidos</p>
+                    <p className="text-2xl font-semibold">{stats.totalMatches}</p>
+                  </div>
+                </div>
+              </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <Trophy className="h-6 w-6 text-blue-500" />
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-green-50 rounded-lg">
+                    <Activity className="h-6 w-6 text-green-500" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm text-gray-500">% Victoria</p>
+                    <p className="text-2xl font-semibold">{stats.winRate}%</p>
+                  </div>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Total Partidos</p>
-                <p className="text-2xl font-semibold">{stats.totalMatches}</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-50 rounded-lg">
-                <Activity className="h-6 w-6 text-green-500" />
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-50 rounded-lg">
+                    <Users className="h-6 w-6 text-purple-500" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm text-gray-500">Ranking</p>
+                    <p className="text-2xl font-semibold">#{stats.ranking}</p>
+                  </div>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">% Victoria</p>
-                <p className="text-2xl font-semibold">{stats.winRate}%</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-purple-50 rounded-lg">
-                <Users className="h-6 w-6 text-purple-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Ranking</p>
-                <p className="text-2xl font-semibold">#{stats.ranking}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-orange-50 rounded-lg">
-                <Calendar className="h-6 w-6 text-orange-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Próximo Partido</p>
-                <p className="text-2xl font-semibold">
-                  {stats.nextMatch || 'No agendado'}
-                </p>
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-orange-50 rounded-lg">
+                    <Calendar className="h-6 w-6 text-orange-500" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm text-gray-500">Próximo Partido</p>
+                    <p className="text-2xl font-semibold">
+                      {stats.nextMatch || 'No agendado'}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }

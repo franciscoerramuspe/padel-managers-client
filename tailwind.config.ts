@@ -11,12 +11,9 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        primary: {
-          600: "#7C3AED", // Color violeta para botones principales
-        }
       },
     },
   },
   plugins: [],
 };
-export default config; 
+export default config;

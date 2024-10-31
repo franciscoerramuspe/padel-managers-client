@@ -1,25 +1,30 @@
 'use client';
 
 import React from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../lib/supabase';
+import { useRouter } from 'next/navigation';
 
 interface GoogleButtonProps {
   className?: string;
 }
 
 const GoogleButton: React.FC<GoogleButtonProps> = ({ className = '' }) => {
+  const router = useRouter();
+
   const handleGoogleSignIn = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         }
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
     } catch (error) {
       console.error('Error signing in with Google:', error);
     }

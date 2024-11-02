@@ -9,7 +9,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Instagram, Facebook } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -30,6 +30,10 @@ export default function ProfilePage() {
     confirm: ""
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [socialMedia, setSocialMedia] = useState({
+    instagram: "",
+    facebook: ""
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -52,6 +56,10 @@ export default function ProfilePage() {
       if (error) throw error;
       setProfile(profile);
       setPhone(profile?.phone || "");
+      setSocialMedia({
+        instagram: profile?.instagram || "",
+        facebook: profile?.facebook || ""
+      });
     } catch (error) {
       console.error('Error loading profile:', error);
     } finally {
@@ -114,13 +122,16 @@ export default function ProfilePage() {
 
   const handleUpdateProfile = async () => {
     try {
-      // Actualizar teléfono
-      const { error: phoneError } = await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
-        .update({ phone })
+        .update({ 
+          phone,
+          instagram: socialMedia.instagram,
+          facebook: socialMedia.facebook
+        })
         .eq('id', user?.id);
 
-      if (phoneError) throw phoneError;
+      if (profileError) throw profileError;
 
       // Actualizar contraseña si se proporcionó una nueva
       if (passwords.new && passwords.new === passwords.confirm) {
@@ -169,8 +180,8 @@ export default function ProfilePage() {
               </div>
 
               <div className="max-w-5xl mx-auto">
-                <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 mb-8">
-                  <h3 className="text-lg font-medium text-gray-700 mb-6">Información Pública</h3>
+                <div className="bg-blue-100 p-8 rounded-lg shadow-sm border-2 border-blue-400 mb-8">
+                  <h3 className="text-lg font-medium text-gray-900 mb-6">Información Pública</h3>
                   <div className="flex items-start gap-6">
                     <Avatar className="h-24 w-24">
                       <AvatarImage src={user?.user_metadata?.avatar_url} />
@@ -183,9 +194,9 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-700 mb-6">Información Personal</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="bg-white p-8 rounded-lg shadow-sm border-2 border-blue-400">
+                    <h3 className="text-lg font-medium text-gray-900 mb-6">Información Personal</h3>
                     <div className="space-y-6">
                       <div>
                         <label className="text-sm font-medium">Nombre completo</label>
@@ -215,8 +226,8 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-700 mb-6">Seguridad</h3>
+                  <div className="bg-white p-8 rounded-lg shadow-sm border-2 border-blue-400">
+                    <h3 className="text-lg font-medium text-gray-900 mb-6">Seguridad</h3>
                     <div className="space-y-6">
                       <div>
                         <label className="text-sm font-medium">Nueva contraseña</label>
@@ -230,7 +241,7 @@ export default function ProfilePage() {
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-400 hover:text-gray-700"
                           >
                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                           </button>
@@ -244,6 +255,43 @@ export default function ProfilePage() {
                           onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
                           className="mt-1"
                         />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-8 rounded-lg shadow-sm border-2 border-blue-400">
+                    <h3 className="text-lg font-medium text-gray-900 mb-6">Redes Sociales</h3>
+                    <div className="space-y-6">
+                      <div>
+                        <label className="text-sm font-medium">Instagram</label>
+                        <div className="relative mt-1 text-blue-400">
+                          <Input
+                            type="text"
+                            value={socialMedia.instagram}
+                            onChange={(e) => setSocialMedia({ ...socialMedia, instagram: e.target.value })}
+                            placeholder="@usuariodeinstagram"
+                            className="pl-10 text-blue-400"
+                          />
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Instagram className="h-4 w-4 text-blue-400" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium">Facebook</label>
+                        <div className="relative mt-1">
+                          <Input
+                            type="text"
+                            value={socialMedia.facebook}
+                            onChange={(e) => setSocialMedia({ ...socialMedia, facebook: e.target.value })}
+                            placeholder="facebook.com/usuario"
+                            className="pl-10"
+                          />
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Facebook className="h-4 w-4 text-blue-400" />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

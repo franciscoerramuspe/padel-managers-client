@@ -7,8 +7,8 @@ import { User } from '@supabase/supabase-js'
 import { Activity, Trophy, Users, Calendar } from 'lucide-react'
 import { SidebarProvider, SidebarTrigger } from "../../components/ui/sidebar"
 import { AppSidebar } from "../../components/app/Sidebar"
-import { useToast } from "@/hooks/use-toast"
-import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "../../components/ui/use-toast"
+import { ToastAction } from "../../components/ui/toast";
 
 export default function DashboardPage() {
   const router = useRouter();

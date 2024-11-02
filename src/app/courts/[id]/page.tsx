@@ -102,12 +102,12 @@ export default function CourtDetailPage() {
 
           <div className="mb-20">
             <h3 className="text-lg font-semibold mb-4">Ubicación</h3>
-            <div className="aspect-video w-full rounded-xl overflow-hidden">
+            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-gray-50">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3354.7499163007893!2d-56.8113!3d-32.7213!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDQzJzE2LjgiUyA1NsKwNDgnNDAuNyJX!5e0!3m2!1ses!2suy!4v1620000000000!5m2!1ses!2suy"
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                style={{ border: 0, borderRadius: '16px' }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"

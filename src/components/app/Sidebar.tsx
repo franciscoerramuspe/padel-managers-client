@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import Link from "next/link"
 
 const menuItems = [
   {
@@ -63,7 +64,7 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
           <Image
@@ -83,10 +84,10 @@ export function AppSidebar() {
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild>
-                  <a href={item.url}>
+                  <Link href={item.url}>
                     <item.icon className="h-4 w-4" />
                     <span>{item.title}</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -119,19 +120,19 @@ export function AppSidebar() {
                 side="right"
                 className="w-[--radix-dropdown-menu-trigger-width]"
               >
-                  <DropdownMenuItem>
-                  <CircleUser className="mr-2 h-4 w-4" />
-                  Perfil
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <UserCog className="mr-2 h-4 w-4" />
-                  Configuración
-                </DropdownMenuItem>
-                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Cerrar sesión</span>
-                </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/profile')}>
+                    <CircleUser className="mr-2 h-4 w-4" />
+                    Perfil
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/settings')}>
+                    <UserCog className="mr-2 h-4 w-4" />
+                    Configuración
+                  </DropdownMenuItem>
+                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Cerrar sesión</span>
+                  </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

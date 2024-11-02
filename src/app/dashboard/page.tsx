@@ -3,9 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
-import GoogleButton from "../../components/GoogleButton";
-import Image from "next/image";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { User } from '@supabase/supabase-js'
 import { Activity, Trophy, Users, Calendar } from 'lucide-react'
 import { SidebarProvider, SidebarTrigger } from "../../components/ui/sidebar"
@@ -59,7 +56,7 @@ export default function DashboardPage() {
   const handleReservation = () => {
     toast({
       title: "¡Reserva Exitosa!",
-      description: "Tu reserva ha sido procesada correctamente.",
+      description: "Tu reserva ha sido procesada correctamente. 01/12/2024 - 10:00 hs.",
       action: (
         <ToastAction 
           altText="Ver mis reservas" 

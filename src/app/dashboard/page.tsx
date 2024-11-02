@@ -10,6 +10,8 @@ import { User } from '@supabase/supabase-js'
 import { Activity, Trophy, Users, Calendar } from 'lucide-react'
 import { SidebarProvider, SidebarTrigger } from "../../components/ui/sidebar"
 import { AppSidebar } from "../../components/app/Sidebar"
+import { useToast } from "@/hooks/use-toast"
+import { ToastAction } from "@/components/ui/toast";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -21,6 +23,7 @@ export default function DashboardPage() {
     ranking: 0,
     nextMatch: null
   });
+  const { toast } = useToast()
 
   useEffect(() => {
     const checkUser = async () => {
@@ -52,6 +55,22 @@ export default function DashboardPage() {
       authListener.subscription.unsubscribe();
     };
   }, [router]);
+
+  const handleReservation = () => {
+    toast({
+      title: "¡Reserva Exitosa!",
+      description: "Tu reserva ha sido procesada correctamente.",
+      action: (
+        <ToastAction 
+          altText="Ver mis reservas" 
+          onClick={() => router.push('/bookings')}
+        >
+          Ver mis reservas
+        </ToastAction>
+      ),
+      duration: 5000,
+    });
+  }
 
   if (loading) {
     return (
@@ -119,6 +138,12 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
+            <button
+              onClick={handleReservation}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Reservar
+            </button>
           </div>
         </main>
       </div>

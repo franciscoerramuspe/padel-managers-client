@@ -9,7 +9,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Eye, EyeOff, Instagram, Facebook } from "lucide-react";
+import { Eye, EyeOff, Instagram, Facebook, ExternalLink } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -34,38 +34,64 @@ export default function ProfilePage() {
     instagram: "",
     facebook: ""
   });
+  const [initialValues, setInitialValues] = useState({
+    phone: '',
+    instagram: '',
+    facebook: '',
+  });
+  const [hasChanges, setHasChanges] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    getProfileData();
+    const getUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setUser(user);
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+          if (profile) {
+            setProfile(profile);
+            setPhone(profile?.phone || "");
+            setSocialMedia({
+              instagram: profile?.instagram || "",
+              facebook: profile?.facebook || ""
+            });
+            
+            setInitialValues({
+              phone: profile?.phone || "",
+              instagram: profile?.instagram || "",
+              facebook: profile?.facebook || ""
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getUser();
   }, []);
 
-  const getProfileData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      
-      setUser(user);
-      
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-        
-      if (error) throw error;
-      setProfile(profile);
-      setPhone(profile?.phone || "");
-      setSocialMedia({
-        instagram: profile?.instagram || "",
-        facebook: profile?.facebook || ""
-      });
-    } catch (error) {
-      console.error('Error loading profile:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const hasPhoneChanged = phone !== initialValues.phone;
+    const hasInstagramChanged = socialMedia.instagram !== initialValues.instagram;
+    const hasFacebookChanged = socialMedia.facebook !== initialValues.facebook;
+    const hasPasswordChanged = passwords.new !== '' || passwords.confirm !== '';
+
+    setHasChanges(
+      hasPhoneChanged || 
+      hasInstagramChanged || 
+      hasFacebookChanged || 
+      hasPasswordChanged
+    );
+  }, [phone, socialMedia, passwords, initialValues]);
 
   const handleUpdatePhone = async () => {
     try {
@@ -121,6 +147,8 @@ export default function ProfilePage() {
   };
 
   const handleUpdateProfile = async () => {
+    if (!hasChanges) return;
+
     try {
       const { error: profileError } = await supabase
         .from('profiles')
@@ -156,6 +184,34 @@ export default function ProfilePage() {
     }
   };
 
+  const getProfileData = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profile) {
+        setPhone(profile?.phone || "");
+        setSocialMedia({
+          instagram: profile?.instagram || "",
+          facebook: profile?.facebook || ""
+        });
+        
+        setInitialValues({
+          phone: profile?.phone || "",
+          instagram: profile?.instagram || "",
+          facebook: profile?.facebook || ""
+        });
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -174,22 +230,83 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-xl font-semibold">Perfil de Usuario</h2>
                 <div className="flex justify-end space-x-4">
-                  <Button variant="outline" onClick={() => getProfileData()}>Cancelar</Button>
-                  <Button onClick={handleUpdateProfile}>Guardar cambios</Button>
+                  <Button variant="outline" onClick={() => getProfileData()}>Cancelar</Button> 
+                  <Button 
+                    className={`
+                      bg-blue-500 hover:bg-blue-600 text-white
+                      ${!hasChanges ? 'opacity-50 cursor-not-allowed' : ''}
+                    `}
+                    onClick={handleUpdateProfile}
+                    disabled={!hasChanges}
+                  >
+                    Guardar cambios
+                  </Button>
                 </div>
               </div>
 
               <div className="max-w-5xl mx-auto">
-                <div className="bg-blue-100 p-8 rounded-lg shadow-sm border-2 border-blue-400 mb-8">
+                <div className="bg-blue-50 p-8 rounded-lg shadow-sm border-2 border-blue-400 mb-8">
                   <h3 className="text-lg font-medium text-gray-900 mb-6">Información Pública</h3>
-                  <div className="flex items-start gap-6">
-                    <Avatar className="h-24 w-24">
-                      <AvatarImage src={user?.user_metadata?.avatar_url} />
-                      <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <div className="space-y-2">
-                      <p className="text-base font-medium">Foto de perfil</p>
-                      <p className="text-sm text-gray-500">Esta foto será visible para otros usuarios</p>
+                  <div className="space-y-6">
+                    <div className="flex items-start gap-6 mb-8">
+                      <Avatar className="h-24 w-24">
+                        <AvatarImage src={user?.user_metadata?.avatar_url} />
+                        <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div className="space-y-2">
+                        <p className="text-base font-medium">Foto de perfil</p>
+                        <p className="text-sm text-gray-500">Esta foto será visible para otros usuarios</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-white p-4 rounded-lg border border-blue-200">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-blue-100 p-2 rounded-lg">
+                            <Instagram className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Instagram</p>
+                            {socialMedia.instagram ? (
+                              <a 
+                                href={`https://instagram.com/${socialMedia.instagram}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:text-blue-600 text-sm flex items-center gap-1"
+                              >
+                                @{socialMedia.instagram}
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : (
+                              <p className="text-sm text-gray-400">No conectado</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-lg border border-blue-200">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-blue-100 p-2 rounded-lg">
+                            <Facebook className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Facebook</p>
+                            {socialMedia.facebook ? (
+                              <a 
+                                href={socialMedia.facebook}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:text-blue-600 text-sm flex items-center gap-1"
+                              >
+                                {socialMedia.facebook.replace('https://facebook.com/', '')}
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : (
+                              <p className="text-sm text-gray-400">No conectado</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -286,7 +403,7 @@ export default function ProfilePage() {
                             value={socialMedia.facebook}
                             onChange={(e) => setSocialMedia({ ...socialMedia, facebook: e.target.value })}
                             placeholder="facebook.com/usuario"
-                            className="pl-10"
+                            className="pl-10 text-blue-400"
                           />
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Facebook className="h-4 w-4 text-blue-400" />

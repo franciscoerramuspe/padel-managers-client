@@ -124,10 +124,6 @@ export function AppSidebar() {
                     <CircleUser className="mr-2 h-4 w-4" />
                     Perfil
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/settings')}>
-                    <UserCog className="mr-2 h-4 w-4" />
-                    Configuración
-                  </DropdownMenuItem>
                    <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />

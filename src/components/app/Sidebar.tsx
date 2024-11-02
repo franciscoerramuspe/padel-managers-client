@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Calendar, Home, Users, Trophy, Settings, User2, ChevronUp, LogOut, ChevronsUpDown } from "lucide-react"
+import { Calendar, Home, CircleUser, LandPlot, LogOut, ChevronsUpDown, UserCog } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +18,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" 
@@ -27,7 +28,7 @@ import Image from "next/image"
 
 const menuItems = [
   {
-    title: "Dashboard",
+    title: "Inicio",
     url: "/dashboard",
     icon: Home,
   },
@@ -37,19 +38,9 @@ const menuItems = [
     icon: Calendar,
   },
   {
-    title: "Ranking",
-    url: "/dashboard/ranking",
-    icon: Trophy,
-  },
-  {
-    title: "Jugadores",
-    url: "/dashboard/players",
-    icon: Users,
-  },
-  {
-    title: "Configuración",
-    url: "/dashboard/settings",
-    icon: Settings,
+    title: "Canchas disponibles",
+    url: "/courts",
+    icon: LandPlot,
   },
 ]
 
@@ -107,6 +98,7 @@ export function AppSidebar() {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="lg">
                   <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage src="https://github.com/shadcn.png" />
                     <AvatarFallback>{userEmail?.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -118,9 +110,18 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                side="top"
+                side="right"
                 className="w-[--radix-dropdown-menu-trigger-width]"
               >
+                  <DropdownMenuItem>
+                  <CircleUser className="mr-2 h-4 w-4" />
+                  Perfil
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <UserCog className="mr-2 h-4 w-4" />
+                  Configuración
+                </DropdownMenuItem>
+                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar sesión</span>

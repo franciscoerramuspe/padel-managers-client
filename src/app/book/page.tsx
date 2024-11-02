@@ -135,7 +135,7 @@ export default function BookingPage() {
                       >
                         <div className="relative h-48">
                           <Image
-                            src="/assets/images.jpg"
+                            src="/assets/padelcancha.jpeg"
                             alt={court.name}
                             fill
                             className="object-cover"

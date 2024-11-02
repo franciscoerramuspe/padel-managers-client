@@ -6,8 +6,8 @@ import { Calendar } from '../../components/ui/calendar'
 import { Button } from '../../components/ui/button'
 import { useToast } from '../../components/ui/use-toast'
 import { Toaster } from '../../components/ui/toaster'
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
-import { Badge } from '../../components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge' 
 import { ChevronLeft, ChevronRight, Check, MapPin, Star } from 'lucide-react'
 import {
   Select,

@@ -5,10 +5,11 @@ import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, MapPin, Clock, Users, Star, Heart, LandPlot, Share } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { fetchAvailability } from '@/services/courts'
 import { Court } from '@/types'
 import { ShareModal } from "@/components/ShareModal"
+import { BenefitsSection } from '@/components/ui/benefits-section'
+import { BookingBar } from "@/components/ui/booking-bar"
 
 export default function CourtDetailPage() {
   const params = useParams()
@@ -95,14 +96,18 @@ export default function CourtDetailPage() {
             Cancha profesional con iluminación LED y superficie de última generación.
           </p>
 
+          <div className="mb-8">
+            <BenefitsSection />
+          </div>
+
           <div className="mb-20">
             <h3 className="text-lg font-semibold mb-4">Ubicación</h3>
-            <div className="aspect-video w-full rounded-xl overflow-hidden">
+            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-gray-50">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3354.7499163007893!2d-56.8113!3d-32.7213!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDQzJzE2LjgiUyA1NsKwNDgnNDAuNyJX!5e0!3m2!1ses!2suy!4v1620000000000!5m2!1ses!2suy"
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                style={{ border: 0, borderRadius: '16px' }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
@@ -110,21 +115,7 @@ export default function CourtDetailPage() {
             </div>
           </div>
 
-          <div className="fixed bottom-0 left-0 right-0 px-6 py-2 bg-green-400 backdrop-blur-sm border-t border-gray-400">
-            <div className="flex items-center justify-between mb-4 mt-2">
-              <div className="flex items-center gap-1 border-2 border-green-500 bg-green-200 rounded-md px-4 py-2">
-                <span className="text-1xl font-medium text-green-600 ">$35</span>
-                <span className="text-black">por hora</span>
-              </div>
-        
-              <Button 
-                className="bg-green-800 hover:bg-green-900 text-white p-4 py-6 rounded-md"
-                onClick={() => router.push(`/book?court=${params.id}`)}
-              >
-                Reservar Ahora
-              </Button>
-            </div>
-          </div>
+          <BookingBar price={35} courtId={params.id as string} />
         </div>
       </div>
 
@@ -211,18 +202,11 @@ export default function CourtDetailPage() {
                 Cancha profesional con iluminación LED y superficie de última generación.
               </p>
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-3xl font-bold">$35</span>
-                  <span className="text-gray-500">/Hora</span>
-                </div>
-                <Button 
-                  className="bg-green-500 hover:bg-green-600 text-white px-8"
-                  onClick={() => router.push(`/book?court=${params.id}`)}
-                >
-                  Reservar Ahora
-                </Button>
+              <div className="mb-8">
+                <BenefitsSection />
               </div>
+
+              <BookingBar price={35} courtId={params.id as string} />
             </div>
           </div>
         </div>

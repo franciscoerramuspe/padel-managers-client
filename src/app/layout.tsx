@@ -25,7 +25,6 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${geistSans.variable} antialiased`}>
         {children}
-        <FloatingSupport />
         <Toaster />
       </body>
     </html>

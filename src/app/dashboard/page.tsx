@@ -159,7 +159,7 @@ export default function DashboardPage() {
                   >
                     <div className="relative h-48">
                       <Image
-                        src="/assets/images.jpg"
+                        src="/assets/padelcancha.jpeg"
                         alt={court.name}
                         fill
                         className="object-cover"
@@ -193,10 +193,10 @@ export default function DashboardPage() {
                       </div>
 
                       <Button
-                        onClick={() => router.push('/book')}
+                        onClick={() => router.push(`/courts/${court.id}`)}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                       >
-                        Reservar Ahora
+                        Ver Detalles
                       </Button>
                     </div>
                   </div>

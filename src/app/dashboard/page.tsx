@@ -7,8 +7,12 @@ import { User } from '@supabase/supabase-js'
 import { Activity, Trophy, Users, Calendar } from 'lucide-react'
 import { SidebarProvider, SidebarTrigger } from "../../components/ui/sidebar"
 import { AppSidebar } from "../../components/app/Sidebar"
-import { useToast } from "@/hooks/use-toast"
-import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "../../components/ui/use-toast"
+import { ToastAction } from "../../components/ui/toast";
+import Image from "next/image";
+import { MapPin, Star } from 'lucide-react'
+import { Button } from "@/components/ui/button";
+import { fetchAvailability } from '@/services/courts'
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -21,6 +25,7 @@ export default function DashboardPage() {
     nextMatch: null
   });
   const { toast } = useToast()
+  const [availableCourts, setAvailableCourts] = useState<Court[]>([])
 
   useEffect(() => {
     const checkUser = async () => {
@@ -47,6 +52,14 @@ export default function DashboardPage() {
         setUser(session.user);
       }
     });
+
+    // Fetch available courts when component mounts
+    const fetchCourts = async () => {
+      const courts = await fetchAvailability(new Date())
+      setAvailableCourts(courts)
+    }
+    
+    fetchCourts()
 
     return () => {
       authListener.subscription.unsubscribe();
@@ -135,12 +148,61 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-            <button
-              onClick={handleReservation}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Reservar
-            </button>
+
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Canchas Disponibles</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {availableCourts.map((court) => (
+                  <div
+                    key={court.id}
+                    className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group"
+                  >
+                    <div className="relative h-48">
+                      <Image
+                        src="/assets/images.jpg"
+                        alt={court.name}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                        <span className="bg-white backdrop-blur-sm text-black px-3 py-1 rounded-full text-sm font-medium">
+                          2 vs 2
+                        </span>
+                        <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                          Abierta
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-xl font-semibold text-gray-800 mb-1">{court.name}</h3>
+                          <div className="flex items-center gap-2 text-gray-500">
+                            <MapPin className="h-4 w-4" />
+                            <span className="text-sm">Paysandu, Uruguay</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <div className="flex items-center gap-1 text-yellow-500 mb-1">
+                            <Star className="h-4 w-4 fill-current" />
+                            <span className="font-medium">4.85</span>
+                          </div>
+                          <span className="text-xs text-gray-500">100 reseñas</span>
+                        </div>
+                      </div>
+
+                      <Button
+                        onClick={() => router.push('/book')}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        Reservar Ahora
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </main>
       </div>

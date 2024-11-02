@@ -13,6 +13,7 @@ import Image from "next/image";
 import { MapPin, Star } from 'lucide-react'
 import { Button } from "@/components/ui/button";
 import { fetchAvailability } from '@/services/courts'
+import { Court } from "@/types";
 
 export default function DashboardPage() {
   const router = useRouter();

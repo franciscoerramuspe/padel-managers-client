@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import FloatingSupport from "@/components/support/FloatingSupport"; 
+import { Toaster } from "@/components/ui/toaster";
 
 
 const geistSans = localFont({
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} antialiased`}>
         {children}
         <FloatingSupport />
+        <Toaster />
       </body>
     </html>
   );

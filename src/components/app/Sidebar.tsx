@@ -38,8 +38,8 @@ const menuItems = [
     icon: Calendar,
   },
   {
-    title: "Canchas disponibles",
-    url: "/courts",
+    title: "Reservar una cancha",
+    url: "/book",
     icon: LandPlot,
   },
 ]

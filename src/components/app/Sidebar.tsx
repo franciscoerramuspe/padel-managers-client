@@ -1,7 +1,8 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Calendar, Home, CircleUser, LandPlot, LogOut, ChevronsUpDown, UserCog } from "lucide-react"
+import { User } from '@supabase/supabase-js'
 import {
   Sidebar,
   SidebarContent,
@@ -46,11 +47,13 @@ const menuItems = [
 
 export function AppSidebar() {
   const router = useRouter()
-  const [userEmail, setUserEmail] = React.useState<string | null>(null)
+  const [user, setUser] = useState<User | null>(null)
 
-  React.useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUserEmail(session?.user?.email ?? null)
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user)
+      }
     })
   }, [])
 
@@ -98,12 +101,15 @@ export function AppSidebar() {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="lg">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src="https://github.com/shadcn.png" />
-                    <AvatarFallback>{userEmail?.charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarImage src={user?.user_metadata?.avatar_url} />
+                    <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
-                      {userEmail || 'Usuario'}
+                      {user?.user_metadata?.full_name || user?.email || 'Usuario'}
+                    </span>
+                    <span className="truncate text-xs text-gray-500">
+                      {user?.email}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto h-4 w-4" />

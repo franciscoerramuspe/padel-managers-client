@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { StatsCard } from "@/components/dashboard/StatsCard";
-import { UpcomingMatches } from "@/components/dashboard/UpcomingMatches";
 import { CourtsGrid } from "@/components/dashboard/CourtsGrid";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/Sidebar";
@@ -15,10 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Trophy, Activity, Users, Calendar } from 'lucide-react';
 import { NextMatch } from "@/components/dashboard/NextMatch";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget"; 
+import { supabase } from '@/lib/supabase';
+import { User } from "@supabase/supabase-js";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [availableCourts, setAvailableCourts] = useState<Court[]>([]);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchCourts = async () => {
@@ -29,17 +31,13 @@ export default function DashboardPage() {
     fetchCourts();
   }, []);
 
-  const mockMatches = [
-    {
-      id: '1',
-      date: '2024-03-20',
-      time: '10:30 AM',
-      court: 'Cancha Central',
-      location: 'Club Principal',
-      opponent: 'Equipo Azul'
-    },
-    // Add more mock matches...
-  ];
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user);
+      }
+    });
+  }, []);
 
   return (
     <SidebarProvider>
@@ -47,7 +45,7 @@ export default function DashboardPage() {
         <AppSidebar />
         <main className="flex-1 overflow-auto bg-gray-50">
           <div className="p-4 md:p-8 w-full">
-            <WelcomeBanner userName="Maruf" notificationCount={3} />
+            <WelcomeBanner userName={user?.user_metadata?.name || user?.user_metadata?.full_name || ''} notificationCount={3} />
             
             <QuickActions />
             
@@ -79,10 +77,8 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               <div className="lg:col-span-2">
                 <NextMatch
-                  date="16 de Junio, 2024"
-                  time="10:30 PM"
-                  courtName="Cancha Central"
-                  onViewCalendar={() => router.push('/bookings')}
+                  userId={user?.id}
+                  onViewCalendar={() => router.push('/my-bookings?userId=' + user?.id)}
                 />
               </div>
               <div className="hidden lg:block">

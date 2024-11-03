@@ -21,6 +21,7 @@ import Image from 'next/image';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
+import { useRouter } from 'next/navigation';
 
 type Court = {
   id: string;
@@ -51,6 +52,24 @@ export default function BookingPage() {
   const [modalDescription, setModalDescription] = useState('');
 
   const [selectedCourtName, setSelectedCourtName] = useState<string | undefined>(undefined);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+        toast({
+          title: 'Acceso Denegado',
+          description: 'Debes iniciar sesión para realizar una reserva.',
+          duration: 5000,
+        });
+      }
+    };
+    
+    checkAuth();
+  }, []);
 
   const handleDateSelect = async (date: Date | undefined) => {
     setSelectedDate(date);
@@ -97,6 +116,18 @@ export default function BookingPage() {
   const handleConfirmBooking = async () => {
     if (selectedCourt && selectedDate && selectedTimeRange) {
       try {
+        // Get current user
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError || !user) {
+          toast({
+            title: 'Error',
+            description: 'Debes iniciar sesión para realizar una reserva.',
+            duration: 5000,
+          });
+          return;
+        }
+
         const [startTime, endTime] = selectedTimeRange.split(' - ');
         const bookingDate = format(selectedDate, 'yyyy-MM-dd');
 
@@ -107,7 +138,7 @@ export default function BookingPage() {
             start_time: startTime,
             end_time: endTime,
             status: 'confirmed',
-            // Include other necessary fields like 'booked_by', 'user_phone_number', etc.
+            booked_by: user.id,
           },
         ]);
 

@@ -51,7 +51,7 @@ export function BookingCard({ booking, onReschedule, onCancel }: BookingCardProp
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <MapPin className="h-4 w-4" />
-              <span>{booking.court.name}</span>
+              <span className="font-semibold text-gray-800 text-lg">{booking.court.name}</span>
             </div>
           </div>
 

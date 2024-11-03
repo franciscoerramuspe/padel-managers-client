@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
+import { es } from "date-fns/locale";
+import Image from "next/image";
 
 type Booking = {
   id: string
@@ -119,32 +121,51 @@ export function NextMatch({ userId, onViewCalendar }: NextMatchProps) {
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentPage}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="space-y-4"
-        >
-          {currentBookings.map((booking) => (
-            <div key={booking.id} className="flex items-center gap-4">
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <Calendar className="h-6 w-6 text-blue-500" />
+      <div className="space-y-4">
+        {currentBookings.map((booking) => {
+          const date = new Date(booking.booking_date + 'T00:00:00-03:00')
+          const dayNumber = format(date, 'd')
+          const dayName = format(date, 'EEE', { locale: es })
+          const month = format(date, 'MMM', { locale: es })
+
+          return (
+            <div key={booking.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex flex-col items-center min-w-[60px]">
+                <span className="text-red-500 font-medium capitalize">{dayName}</span>
+                <span className="text-3xl font-bold">{dayNumber}</span>
+                <span className="text-sm text-gray-500 capitalize">{month}</span>
               </div>
-              <div>
-                <p className="text-sm text-gray-500">
-                  {format(new Date(booking.booking_date), 'dd/MM/yyyy')}
-                </p>
-                <p className="text-xl font-semibold">
-                  {booking.start_time.slice(0, 5)} - {booking.end_time.slice(0, 5)}
-                </p>
-                <p className="text-sm text-gray-500">{booking.court.name}</p>
+
+              <div className="flex-1">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    <span>{booking.start_time.slice(0, 5)} - {booking.end_time.slice(0, 5)}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <MapPin className="h-4 w-4" />
+                    <span className="font-semibold text-gray-800">{booking.court.name}</span>
+                  </div>
+                  <div className="mt-1">
+                    <span className="px-2 py-0.5 rounded-full text-sm bg-green-100 text-green-700">
+                      Confirmada
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0">
+                <Image
+                  src="/assets/padelcancha.jpeg"
+                  alt="Cancha de padel"
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-300"
+                />
               </div>
             </div>
-          ))}
-        </motion.div>
-      </AnimatePresence>
+          )
+        })}
+      </div>
     </div>
   );
 } 

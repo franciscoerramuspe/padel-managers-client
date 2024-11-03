@@ -205,7 +205,6 @@ export default function CourtDetailPage() {
               <div className="mb-8">
                 <BenefitsSection />
               </div>
-
               <BookingBar price={35} courtId={params.id as string} />
             </div>
           </div>

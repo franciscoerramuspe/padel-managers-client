@@ -16,27 +16,40 @@ import { supabase } from '@/lib/supabase';
 import { User } from "@supabase/supabase-js";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { CourtsCarousel } from "@/components/dashboard/CourtsCarousel";
+import { SkeletonWelcomeBanner } from "@/components/dashboard/skeletons/SkeletonWelcomeBanner";
+import { SkeletonQuickActions } from "@/components/dashboard/skeletons/SkeletonQuickActions";
+import { SkeletonCourtsCarousel } from "@/components/dashboard/skeletons/SkeletonCourtsCarousel";
+import { SkeletonNextMatch } from "@/components/dashboard/skeletons/SkeletonNextMatch";
+import { SkeletonWeatherWidget } from "@/components/dashboard/skeletons/SkeletonWeatherWidget";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonCourtsGrid } from "@/components/dashboard/skeletons/SkeletonCourtsGrid";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [availableCourts, setAvailableCourts] = useState<Court[]>([]);
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCourts = async () => {
-      const courts = await fetchAvailability(new Date());
-      setAvailableCourts(courts);
+    const fetchData = async () => {
+      try {
+        const [courtsData, userData] = await Promise.all([
+          fetchAvailability(new Date()),
+          supabase.auth.getUser()
+        ]);
+        
+        setAvailableCourts(courtsData);
+        if (userData.data.user) {
+          setUser(userData.data.user);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setTimeout(() => setLoading(false), 1000); // Añadimos un pequeño delay para mejor UX
+      }
     };
     
-    fetchCourts();
-  }, []);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUser(user);
-      }
-    });
+    fetchData();
   }, []);
 
   return (
@@ -45,57 +58,91 @@ export default function DashboardPage() {
         <AppSidebar />
         <main className="flex-1 overflow-auto bg-gray-50 pb-16 md:pb-0">
           <div className="p-4 md:p-8 w-full">
-            <WelcomeBanner 
-              userName={user?.user_metadata?.name || user?.user_metadata?.full_name || ''} 
-              notificationCount={3}
-              avatarUrl={user?.user_metadata?.avatar_url}
-              email={user?.email}
-            />
-            
-            <QuickActions />
-            
-            {/* Mobile: Canchas Disponibles */}
-            <div className="mb-8 lg:hidden">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-800">Canchas Disponibles</h2>
-                <Button variant="outline" onClick={() => router.push('/book')}>
-                  Ver todas
-                </Button>
-              </div>
-              <CourtsCarousel
-                courts={availableCourts}
-                onCourtSelect={(courtId) => router.push(`/courts/${courtId}`)}
-              />
-            </div>
+            {loading ? (
+              <>
+                <SkeletonWelcomeBanner />
+                <SkeletonQuickActions />
+                
+                {/* Desktop: Canchas Disponibles Skeleton */}
+                <div className="hidden lg:block mb-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <Skeleton className="h-8 w-48" />
+                    <Skeleton className="h-10 w-24" />
+                  </div>
+                  <SkeletonCourtsGrid />
+                </div>
 
-                        {/* Desktop: Canchas Disponibles */}
-              <div className="hidden lg:block mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-800">Canchas Disponibles</h2>
-                <Button variant="outline" onClick={() => router.push('/book')}>
-                  Ver todas
-                </Button>
-              </div>
-              <CourtsGrid
-                courts={availableCourts}
-                onCourtSelect={(courtId) => router.push(`/courts/${courtId}`)}
-              />
-            </div>
+                {/* Mobile: Canchas Disponibles Skeleton */}
+                <div className="mb-8 lg:hidden">
+                  <div className="flex items-center justify-between mb-6">
+                    <Skeleton className="h-8 w-48" />
+                    <Skeleton className="h-10 w-24" />
+                  </div>
+                  <SkeletonCourtsCarousel />
+                </div>
 
-            {/* Desktop: Grid layout con NextMatch y WeatherWidget */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              <div className="lg:col-span-2">
-                <NextMatch
-                  userId={user?.id}
-                  onViewCalendar={() => router.push('/my-bookings?userId=' + user?.id)}
+                {/* Desktop: Grid layout Skeleton */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                  <div className="lg:col-span-2">
+                    <SkeletonNextMatch />
+                  </div>
+                  <div className="block">
+                    <SkeletonWeatherWidget />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <WelcomeBanner 
+                  userName={user?.user_metadata?.name || user?.user_metadata?.full_name || ''} 
+                  notificationCount={3}
+                  avatarUrl={user?.user_metadata?.avatar_url}
+                  email={user?.email}
                 />
-              </div>
-              <div className="block">
-                <WeatherWidget />
-              </div>
-            </div>
+                <QuickActions />
+                
+                {/* Desktop: Canchas Disponibles */}
+                <div className="hidden lg:block mb-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-800">Canchas Disponibles</h2>
+                    <Button variant="outline" onClick={() => router.push('/book')}>
+                      Ver todas
+                    </Button>
+                  </div>
+                  <CourtsGrid
+                    courts={availableCourts}
+                    onCourtSelect={(courtId) => router.push(`/courts/${courtId}`)}
+                  />
+                </div>
 
+                {/* Mobile: Canchas Disponibles */}
+                <div className="mb-8 lg:hidden">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-800">Canchas Disponibles</h2>
+                    <Button variant="outline" onClick={() => router.push('/book')}>
+                      Ver todas
+                    </Button>
+                  </div>
+                  <CourtsCarousel
+                    courts={availableCourts}
+                    onCourtSelect={(courtId) => router.push(`/courts/${courtId}`)}
+                  />
+                </div>
 
+                {/* Desktop: Grid layout con NextMatch y WeatherWidget */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                  <div className="lg:col-span-2">
+                    <NextMatch
+                      userId={user?.id}
+                      onViewCalendar={() => router.push('/my-bookings?userId=' + user?.id)}
+                    />
+                  </div>
+                  <div className="block">
+                    <WeatherWidget />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </main>
         <BottomNav />

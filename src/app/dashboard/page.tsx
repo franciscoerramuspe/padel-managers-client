@@ -11,11 +11,11 @@ import { AppSidebar } from "@/components/app/Sidebar";
 import { fetchAvailability } from '@/services/courts';
 import { Court } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Trophy, Activity, Users, Calendar } from 'lucide-react';
 import { NextMatch } from "@/components/dashboard/NextMatch";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget"; 
 import { supabase } from '@/lib/supabase';
 import { User } from "@supabase/supabase-js";
+import { BottomNav } from "@/components/navigation/BottomNav";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -43,37 +43,17 @@ export default function DashboardPage() {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <main className="flex-1 overflow-auto bg-gray-50">
+        <main className="flex-1 overflow-auto bg-gray-50 pb-16 md:pb-0">
           <div className="p-4 md:p-8 w-full">
-            <WelcomeBanner userName={user?.user_metadata?.name || user?.user_metadata?.full_name || ''} notificationCount={3} />
+            <WelcomeBanner 
+              userName={user?.user_metadata?.name || user?.user_metadata?.full_name || ''} 
+              notificationCount={3}
+              avatarUrl={user?.user_metadata?.avatar_url}
+              email={user?.email}
+            />
             
             <QuickActions />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
-              <StatsCard
-                title="Total Reservas"
-                value="24"
-                icon={Trophy}
-                trend={{ value: 12, isPositive: true }}
-              />
-              <StatsCard
-                title="Tasa de Victoria"
-                value="68%"
-                icon={Activity}
-              />
-              <StatsCard
-                title="Ranking"
-                value="#42"
-                icon={Users}
-              />
-              <StatsCard
-                title="Próximo Partido"
-                value="2"
-                icon={Calendar}
-                description="días restantes"
-              />
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               <div className="lg:col-span-2">
                 <NextMatch
@@ -81,7 +61,7 @@ export default function DashboardPage() {
                   onViewCalendar={() => router.push('/my-bookings?userId=' + user?.id)}
                 />
               </div>
-              <div className="hidden lg:block">
+              <div className="block">
                 <WeatherWidget />
               </div>
             </div>
@@ -100,6 +80,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </main>
+        <BottomNav />
       </div>
     </SidebarProvider>
   );

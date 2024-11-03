@@ -57,7 +57,7 @@ export function NextMatch({ userId, onViewCalendar }: NextMatchProps) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Próxima Reserva</h3>
+          <h3 className="text-lg font-semibold">Tus próximas reservas</h3>
           <Button variant="outline" size="sm" onClick={onViewCalendar}>
             Ver Calendario
           </Button>
@@ -70,7 +70,7 @@ export function NextMatch({ userId, onViewCalendar }: NextMatchProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Próxima Reserva</h3>
+        <h3 className="text-lg font-semibold">Tus próximas reservas</h3>
         <Button variant="outline" size="sm" onClick={onViewCalendar}>
           Ver Calendario
         </Button>

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import { QuickActions } from "@/components/dashboard/QuickActions";
-import { StatsCard } from "@/components/dashboard/StatsCard";
 import { CourtsGrid } from "@/components/dashboard/CourtsGrid";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/Sidebar";
@@ -16,6 +15,7 @@ import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
 import { supabase } from '@/lib/supabase';
 import { User } from "@supabase/supabase-js";
 import { BottomNav } from "@/components/navigation/BottomNav";
+import { CourtsCarousel } from "@/components/dashboard/CourtsCarousel";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -54,6 +54,35 @@ export default function DashboardPage() {
             
             <QuickActions />
             
+            {/* Mobile: Canchas Disponibles */}
+            <div className="mb-8 lg:hidden">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-800">Canchas Disponibles</h2>
+                <Button variant="outline" onClick={() => router.push('/book')}>
+                  Ver todas
+                </Button>
+              </div>
+              <CourtsCarousel
+                courts={availableCourts}
+                onCourtSelect={(courtId) => router.push(`/courts/${courtId}`)}
+              />
+            </div>
+
+                        {/* Desktop: Canchas Disponibles */}
+              <div className="hidden lg:block mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-800">Canchas Disponibles</h2>
+                <Button variant="outline" onClick={() => router.push('/book')}>
+                  Ver todas
+                </Button>
+              </div>
+              <CourtsGrid
+                courts={availableCourts}
+                onCourtSelect={(courtId) => router.push(`/courts/${courtId}`)}
+              />
+            </div>
+
+            {/* Desktop: Grid layout con NextMatch y WeatherWidget */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               <div className="lg:col-span-2">
                 <NextMatch
@@ -66,18 +95,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-800">Canchas Disponibles</h2>
-                <Button variant="outline" onClick={() => router.push('/book')}>
-                  Ver todas
-                </Button>
-              </div>
-              <CourtsGrid
-                courts={availableCourts}
-                onCourtSelect={(courtId) => router.push(`/courts/${courtId}`)}
-              />
-            </div>
+
           </div>
         </main>
         <BottomNav />

@@ -3,16 +3,42 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User } from '@supabase/supabase-js';
+import { motion, AnimatePresence } from 'framer-motion';
+import { OnboardingSlide } from '@/components/onboarding/OnboardingSlide';
+import { PhoneForm } from '@/components/onboarding/PhoneForm';
+import { Button } from '@/components/ui/button';
+
+const slides = [
+  {
+    title: "Encuentra tu Cancha Perfecta",
+    subtitle: "Descubre las mejores canchas de pádel cerca de ti",
+    imagePath: "/assets/welcome.png",
+    highlightWord: "Perfecta",
+    titleColor: "blue"
+  },
+  {
+    title: "Reserva en Segundos",
+    subtitle: "Proceso simple y rápido para asegurar tu horario ideal",
+    imagePath: "/assets/step2.png",
+    highlightWord: "Segundos",
+    titleColor: "orange"
+  },
+  {
+    title: "Juega con Amigos",
+    subtitle: "Organiza partidos y comparte tus reservas fácilmente",
+    imagePath: "/assets/step3.png",
+    highlightWord: "Amigos",
+    titleColor: "green"
+  }
+];
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [phone, setPhone] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [showPhoneForm, setShowPhoneForm] = useState(false);
+  const [user, setUser] = useState(null);
 
+  // Keep your existing useEffect for auth check
   useEffect(() => {
     const checkProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -20,119 +46,97 @@ export default function OnboardingPage() {
         router.push('/login');
         return;
       }
-
-      // Verificar si el usuario ya tiene un perfil completo
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('phone')
-        .eq('id', user.id)
-        .single();
-
-      if (profile?.phone) {
-        router.push('/dashboard');
-        return;
-      }
-
       setUser(user);
     };
 
     checkProfile();
   }, [router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          phone: phone,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', user?.id);
-
-      if (error) throw error;
-      router.push('/dashboard');
-    } catch (error: any) {
-      console.error('Error updating profile:', error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
+  const handleNext = () => {
+    if (currentSlide < slides.length - 1) {
+      setCurrentSlide(prev => prev + 1);
+    } else {
+      setShowPhoneForm(true);
     }
   };
 
-  if (!user) return null;
+  const handleSkip = () => {
+    setShowPhoneForm(true);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">¡Bienvenido a Padel Manager!</h1>
-          <p className="text-gray-500">Complete su perfil para continuar</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-white/10 rounded-full mix-blend-multiply filter blur-xl" />
+        <div className="absolute -bottom-8 right-0 w-96 h-96 bg-white/10 rounded-full mix-blend-multiply filter blur-xl" />
+      </div>
+
+      <div className="relative min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <AnimatePresence mode="wait">
+            {!showPhoneForm ? (
+              <div className="h-[600px] bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden">
+                <div className="h-full flex flex-col">
+                  <div className="flex-1 relative">
+                    {slides.map((slide, index) => (
+                      <OnboardingSlide
+                        key={index}
+                        {...slide}
+                        isActive={currentSlide === index}
+                      />
+                    ))}
+                  </div>
+                  
+                  <div className="p-8 space-y-6">
+                    <div className="flex justify-center space-x-2">
+                      {slides.map((_, index) => (
+                        <motion.div
+                          key={index}
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            currentSlide === index 
+                              ? 'bg-white w-8' 
+                              : 'bg-white/40 w-2'
+                          }`}
+                          animate={{
+                            scale: currentSlide === index ? 1.2 : 1
+                          }}
+                        />
+                      ))}
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <Button
+                        variant="ghost"
+                        onClick={handleSkip}
+                        className="text-white hover:text-white/80"
+                      >
+                        Saltar
+                      </Button>
+                      
+                      <Button
+                        onClick={handleNext}
+                        className="bg-white text-blue-600 hover:bg-white/90 px-8"
+                      >
+                        {currentSlide === slides.length - 1 ? '¡Comenzar!' : 'Siguiente'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="bg-white rounded-3xl shadow-xl"
+              >
+                <PhoneForm user={user} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-
-        <div className="flex flex-col items-center mb-8">
-          <Avatar className="w-24 h-24 mb-4">
-            <AvatarImage src={user.user_metadata?.avatar_url} />
-            <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
-          </Avatar>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre completo
-              </label>
-              <input
-                type="text"
-                value={user.user_metadata?.full_name || ''}
-                disabled
-                className="w-full px-4 py-3 rounded-lg border bg-gray-50 text-gray-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Correo electrónico
-              </label>
-              <input
-                type="email"
-                value={user.email || ''}
-                disabled
-                className="w-full px-4 py-3 rounded-lg border bg-gray-50 text-gray-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Teléfono
-              </label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Ej: 092033831"
-                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-              {error && (
-                <p className="text-sm text-red-500 mt-1">{error}</p>
-              )}
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50"
-          >
-            {loading ? 'Guardando...' : 'Continuar'}
-          </button>
-        </form>
       </div>
     </div>
   );
-} 
+}

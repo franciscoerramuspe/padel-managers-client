@@ -11,6 +11,7 @@ interface Court {
   name: string;
   location: string;
   rating: number;
+  price_per_hour: number;
 }
 
 interface CourtsCarouselProps {
@@ -59,13 +60,19 @@ export function CourtsCarousel({ courts, onCourtSelect }: CourtsCarouselProps) {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                    <span className="bg-white/90 backdrop-blur-sm text-black px-3 py-1 rounded-full text-sm font-medium">
-                      2 vs 2
+                    <span className="bg-orange-100 backdrop-blur-sm text-orange-600 px-3 py-1 rounded-full text-sm font-medium">
+                      ¡Pocos horarios!
                     </span>
                     <span className="bg-green-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
                       Disponible
                     </span>
                   </div>
+                </div>
+
+                <div className="absolute top-4 right-4 z-10">
+                  <span className="bg-white/90 backdrop-blur-sm text-green-600 px-3 py-1 rounded-full text-sm font-medium">
+                    1200/hr
+                  </span>
                 </div>
 
                 <div className="p-4">

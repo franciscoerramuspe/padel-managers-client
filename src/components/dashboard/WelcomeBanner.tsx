@@ -31,9 +31,11 @@ export function WelcomeBanner({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 p-8 mb-8">
-      <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-blue-400 opacity-20 blur-2xl"></div>
-      <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-blue-600 opacity-20 blur-2xl"></div>
+    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-8 mb-8">
+      <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl -mr-20 -mt-20"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -ml-20 -mb-20"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-32 bg-gradient-to-r from-blue-400/10 via-white/5 to-blue-400/10 blur-2xl"></div>
       
       <div className="relative flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -54,7 +56,6 @@ export function WelcomeBanner({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Avatar sin dropdown para desktop */}
           <div className="hidden lg:block">
             <Avatar className="h-12 w-12 border-2 border-white/50 shadow-lg">
               <AvatarImage src={avatarUrl} />
@@ -65,8 +66,12 @@ export function WelcomeBanner({
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">¡Bienvenido, {userName}!</h1>
-            <p className="text-blue-100">Gestiona tus reservas y disfruta del mejor pádel</p>
+            <h1 className="text-2xl font-bold text-white mb-1 drop-shadow-md">
+              ¡Bienvenido, {userName}!
+            </h1>
+            <p className="text-blue-50/90">
+              Gestiona tus reservas y disfruta del mejor pádel
+            </p>
           </div>
         </div>
         

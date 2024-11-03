@@ -46,7 +46,7 @@ export function WeatherWidget() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 h-full">
+    <>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">Clima Actual</h3>
         <span className="text-sm text-gray-500">Paysandú</span>
@@ -82,6 +82,6 @@ export function WeatherWidget() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 } 

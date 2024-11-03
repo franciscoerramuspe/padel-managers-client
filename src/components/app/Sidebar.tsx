@@ -28,27 +28,27 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 
-const menuItems = [
-  {
-    title: "Inicio",
-    url: "/dashboard",
-    icon: Home,
-  },
-  {
-    title: "Mis Reservas",
-    url: "/bookings",
-    icon: Calendar,
-  },
-  {
-    title: "Reservar una cancha",
-    url: "/book",
-    icon: LandPlot,
-  },
-]
-
 export function AppSidebar() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
+
+  const getMenuItems = (userId: string | undefined) => [
+    {
+      title: "Inicio",
+      url: "/dashboard",
+      icon: Home,
+    },
+    {
+      title: "Mis Reservas",
+      url: userId ? `/my-bookings?userId=${userId}` : '/my-bookings',
+      icon: Calendar,
+    },
+    {
+      title: "Reservar una cancha",
+      url: "/book",
+      icon: LandPlot,
+    },
+  ]
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -81,7 +81,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarMenu>
-            {menuItems.map((item) => (
+            {getMenuItems(user?.id).map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild>
                   <Link href={item.url}>

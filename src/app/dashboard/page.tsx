@@ -23,6 +23,7 @@ import { SkeletonNextMatch } from "@/components/dashboard/skeletons/SkeletonNext
 import { SkeletonWeatherWidget } from "@/components/dashboard/skeletons/SkeletonWeatherWidget";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonCourtsGrid } from "@/components/dashboard/skeletons/SkeletonCourtsGrid";
+import { ClockWidget } from "@/components/dashboard/ClockWidget";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -138,7 +139,12 @@ export default function DashboardPage() {
                     />
                   </div>
                   <div className="block">
-                    <WeatherWidget />
+                    <div className="bg-white rounded-xl shadow-sm p-6 h-full space-y-6">
+                      <WeatherWidget />
+                      <div className="border-t pt-6">
+                        <ClockWidget />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </>

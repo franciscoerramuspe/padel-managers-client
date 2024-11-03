@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { format } from 'date-fns'
 import { supabase } from '@/lib/supabase'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock, MapPin } from 'lucide-react'
+import { BookingCard } from '@/components/bookings/BookingCard'
+import { BookingTabs } from '@/components/bookings/BookingTabs'
+import { Input } from '@/components/ui/input'
+import { Search } from 'lucide-react'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/app/Sidebar'
+import { BottomNav } from '@/components/navigation/BottomNav'
 
 type Booking = {
   id: string
@@ -23,6 +26,8 @@ type Booking = {
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('upcoming')
+  const [searchQuery, setSearchQuery] = useState('')
   const searchParams = useSearchParams()
   const userId = searchParams.get('userId')
 
@@ -51,70 +56,62 @@ export default function MyBookingsPage() {
     fetchBookings()
   }, [userId])
 
+  const handleReschedule = (id: string) => {
+    // Implement rescheduling logic
+    console.log('Reschedule booking:', id)
+  }
+
+  const handleCancel = (id: string) => {
+    // Implement cancellation logic
+    console.log('Cancel booking:', id)
+  }
+
   if (loading) {
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return 'bg-green-500'
-      case 'cancelled':
-        return 'bg-red-500'
-      default:
-        return 'bg-gray-500'
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Mis Reservas</h1>
-        
-        <div className="grid gap-6">
-          {bookings.map((booking) => (
-            <Card key={booking.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Badge className={getStatusColor(booking.status)}>
-                        {booking.status === 'confirmed' ? 'Confirmada' : 'Cancelada'}
-                      </Badge>
-                      <h3 className="text-xl font-semibold">{booking.court.name}</h3>
-                    </div>
-                    
-                    <div className="space-y-2 text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        <span>{format(new Date(booking.booking_date), 'dd/MM/yyyy')}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        <span>
-                          {booking.start_time.slice(0, 5)} - {booking.end_time.slice(0, 5)}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        <span>Ubicación de la cancha</span>
-                      </div>
-                    </div>
-                  </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <main className="flex-1">
+          <div className="flex flex-col h-full">
+            <div className="flex-1 space-y-4 p-8 pt-6">
+              <div className="flex items-center justify-between gap-4 mb-8">
+                <div className="relative w-64">
+                  <Input
+                    type="text"
+                    placeholder="Buscar reservas..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <BookingTabs activeTab={activeTab} onTabChange={setActiveTab} />
+              </div>
+              
+              <div className="grid gap-4">
+                {bookings.map((booking) => (
+                  <BookingCard
+                    key={booking.id}
+                    booking={booking}
+                    onReschedule={handleReschedule}
+                    onCancel={handleCancel}
+                  />
+                ))}
 
-          {bookings.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              No tienes reservas registradas
+                {bookings.length === 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    No tienes reservas registradas
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        </main>
+        <BottomNav />
       </div>
-    </div>
+    </SidebarProvider>
   )
 }

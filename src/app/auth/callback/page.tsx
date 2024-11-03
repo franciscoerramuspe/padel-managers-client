@@ -10,7 +10,6 @@ export default function AuthCallback() {
   useEffect(() => {
     const checkUserProfile = async () => {
       try {
-        // Obtener usuario actual
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         
         if (userError || !user) {
@@ -18,19 +17,36 @@ export default function AuthCallback() {
           return
         }
 
-        // Verificar si el usuario ya tiene un perfil con teléfono
+        // Verificar si el usuario ya tiene un perfil
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('phone')
           .eq('id', user.id)
           .single()
 
-        if (profileError) {
+        if (profileError && profileError.code !== 'PGRST116') {
           console.error('Error fetching profile:', profileError)
         }
 
-        // Si el usuario tiene un perfil con teléfono, ir al dashboard
-        // Si no, ir al onboarding
+        // Si no existe el perfil, crearlo
+        if (!profile) {
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert([
+              {
+                id: user.id,
+                email: user.email,
+                full_name: user.user_metadata?.full_name,
+                avatar_url: user.user_metadata?.avatar_url,
+              }
+            ])
+
+          if (insertError) {
+            console.error('Error creating profile:', insertError)
+          }
+        }
+
+        // Redirigir según el estado del perfil
         if (profile?.phone) {
           router.push('/dashboard')
         } else {

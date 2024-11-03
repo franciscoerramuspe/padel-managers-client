@@ -14,16 +14,29 @@ export default function OnboardingPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const getUser = async () => {
+    const checkProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push('/login');
         return;
       }
+
+      // Verificar si el usuario ya tiene un perfil completo
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('phone')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.phone) {
+        router.push('/dashboard');
+        return;
+      }
+
       setUser(user);
     };
 
-    getUser();
+    checkProfile();
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {

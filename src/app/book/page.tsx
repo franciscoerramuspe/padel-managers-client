@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { format, addMinutes, parse, addMonths } from 'date-fns';
 import { Calendar } from "@/components/ui/calendar"
 import { CalendarIcon, ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react"
@@ -29,6 +29,7 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app/Sidebar"
 import { BottomNav } from "@/components/navigation/BottomNav"
 import { BookingConfirmation } from '@/components/bookings/BookingConfirmation'
+import { PlayersForm } from '@/components/bookings/PlayersForm'
 
 type Court = {
   id: string;
@@ -60,6 +61,12 @@ export default function BookingPage() {
 
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmedBookingId, setConfirmedBookingId] = useState<string | null>(null);
+
+  const [players, setPlayers] = useState<string[]>([]);
+
+  const [isPlayersValid, setIsPlayersValid] = useState(false);
+
+  const playersFormRef = useRef<{ setShowErrors: (show: boolean) => void }>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -121,10 +128,22 @@ export default function BookingPage() {
 
   const handleTimeSelect = (timeRange: string) => {
     setSelectedTimeRange(timeRange);
-    setStep(3);
+    setStep(4);
   };
 
   const handleConfirmBooking = async () => {
+    if (players.length < 4) {
+      if (playersFormRef.current) {
+        playersFormRef.current.setShowErrors(true);
+      }
+      toast({
+        title: 'Error',
+        description: 'Por favor, completa todos los jugadores antes de confirmar la reserva.',
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (selectedCourt && selectedDate && selectedTimeRange) {
       try {
         const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -149,6 +168,7 @@ export default function BookingPage() {
             end_time: endTime,
             status: 'confirmed',
             booked_by: user.id,
+            players: players,
           },
         ]).select();
 
@@ -217,7 +237,7 @@ export default function BookingPage() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-2xl font-bold">Reserva tu cancha</CardTitle>
                   <div className="flex items-center space-x-2">
-                    {Array.from({ length: 3 }).map((_, i) => (
+                    {Array.from({ length: 4 }).map((_, i) => (
                       <Badge
                         key={i}
                         variant={step > i ? "default" : "outline"}
@@ -439,6 +459,45 @@ export default function BookingPage() {
                             <Button 
                               onClick={handleConfirmBooking}
                               className="bg-black hover:bg-gray-900 text-white px-8"
+                              disabled={!isPlayersValid}
+                            >
+                              Confirmar Reserva
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {step === 4 && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      className="max-w-2xl mx-auto"
+                    >
+                      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                        <div className="bg-green-500 px-6 py-4">
+                          <h3 className="text-xl font-semibold text-white">Agregar jugadores</h3>
+                        </div>
+                        
+                        <div className="p-6 space-y-6">
+                          <PlayersForm 
+                            ref={playersFormRef}
+                            players={players}
+                            onPlayersChange={setPlayers}
+                            maxPlayers={4}
+                            onValidationChange={setIsPlayersValid}
+                          />
+
+                          <div className="flex items-center justify-between pt-6 border-t">
+                            <Button variant="outline" onClick={() => setStep(3)}>
+                              <ChevronLeft className="mr-2 h-4 w-4" /> Volver
+                            </Button>
+                            <Button 
+                              onClick={handleConfirmBooking}
+                              className="bg-black hover:bg-gray-900 text-white px-8"
+                              disabled={!isPlayersValid}
                             >
                               Confirmar Reserva
                             </Button>

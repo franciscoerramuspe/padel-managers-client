@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Share2, Clock, MapPin, Phone  } from 'lucide-react'
+import { Share2, Clock, MapPin, Phone, Share, FileDown, Copy, Users2, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Image from 'next/image'
 import { toast } from '@/hooks/toast'
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { useRef, useState, useEffect } from 'react';
 
 interface BookingConfirmationProps {
   bookingId: string
@@ -18,6 +21,7 @@ interface BookingConfirmationProps {
   startTime: string
   endTime: string
   price: number
+  players?: string[]
   onClose?: () => void
 }
 
@@ -28,8 +32,15 @@ export function BookingConfirmation({
   startTime,
   endTime,
   price,
+  players = [],
   onClose
 }: BookingConfirmationProps) {
+  // Validar que todos los datos necesarios estén presentes
+  if (!bookingId || !courtName || !date || !startTime || !endTime) {
+    console.error('Missing required booking data');
+    return null;
+  }
+
   const bookingDetails = `🎾 Reserva en ${courtName}\n📅 Fecha: ${format(date, 'dd/MM/yyyy')}\n⏰ Horario: ${startTime} - ${endTime}\n💳 Total: $${price}`
   
   const shareOptions = {
@@ -47,9 +58,77 @@ export function BookingConfirmation({
     }
   }
 
+  const receiptRef = useRef<HTMLDivElement>(null);
+
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
+  const generatePDF = async () => {
+    if (!receiptRef.current || isGeneratingPDF) return;
+
+    try {
+      setIsGeneratingPDF(true);
+      const canvas = await html2canvas(receiptRef.current, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false,
+        useCORS: true,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+        hotfixes: ['px_scaling'],
+      });
+
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      
+      const pdfBlob = pdf.output('blob');
+      const newPdfUrl = URL.createObjectURL(pdfBlob);
+      setPdfUrl(newPdfUrl);
+
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        const shareData = {
+          files: [
+            new File([pdfBlob], 'comprobante-reserva.pdf', {
+              type: 'application/pdf',
+            }),
+          ],
+        };
+        
+        if (navigator.share && navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+        } else {
+          window.open(newPdfUrl, '_blank');
+        }
+      } else {
+        window.open(newPdfUrl, '_blank');
+      }
+    } catch (error) {
+      handlePDFError(error);
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden animate-in zoom-in-95">
+      <div ref={receiptRef} className="bg-white rounded-3xl max-w-md w-full overflow-hidden animate-in zoom-in-95">
         {/* Header con imagen de fondo */}
         <div className="relative h-32 bg-gradient-to-br from-green-400 to-green-600">
           <Image
@@ -57,6 +136,8 @@ export function BookingConfirmation({
             alt="Cancha de padel"
             fill
             className="object-cover opacity-20"
+            priority
+            crossOrigin="anonymous"
           />
           <div className="absolute inset-0 flex items-center justify-center">
             <h2 className="text-2xl font-bold text-white">Reserva procesada con éxito</h2>
@@ -96,15 +177,42 @@ export function BookingConfirmation({
             </div>
           </div>
 
+          {/* Agregar sección de jugadores */}
+          {players.length > 0 && (
+            <div className="flex items-center gap-3 mt-4">
+              <Users2 className="h-5 w-5 text-green-500" />
+              <div>
+                <p className="font-medium">Jugadores</p>
+                <div className="grid grid-cols-2 gap-2 mt-1">
+                  {players.map((player, index) => (
+                    <p key={index} className="text-sm text-gray-600">
+                      {index + 1}. {player}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Reemplazar el botón de compartir por el menú desplegable */}
           <div className="flex gap-3 p-6">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   className="flex-1 bg-black hover:bg-gray-800"
+                  disabled={isGeneratingPDF}
                 >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Compartir
+                  {isGeneratingPDF ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generando...
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Compartir
+                    </>
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -117,15 +225,12 @@ export function BookingConfirmation({
                   </svg>
                   Compartir por WhatsApp
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={generatePDF}>
+                  <FileDown className="h-4 w-4 mr-2" />
+                  Descargar PDF
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={shareOptions.copy}>
-                  <svg 
-                    className="h-4 w-4 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
+                  <Copy className="h-4 w-4 mr-2" />
                   Copiar al portapapeles
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -146,3 +251,21 @@ export function BookingConfirmation({
     </div>
   )
 } 
+
+const handlePDFError = (error: any) => {
+  let errorMessage = 'No se pudo generar el PDF. Por favor, intente nuevamente.';
+  
+  if (error instanceof Error) {
+    if (error.message.includes('canvas')) {
+      errorMessage = 'Error al generar la imagen del comprobante.';
+    } else if (error.message.includes('share')) {
+      errorMessage = 'Su dispositivo no soporta la función de compartir.';
+    }
+  }
+  
+  toast({
+    title: 'Error',
+    description: errorMessage,
+    variant: 'destructive',
+  });
+};

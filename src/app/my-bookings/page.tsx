@@ -11,6 +11,8 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app/Sidebar'
 import { BottomNav } from '@/components/navigation/BottomNav'
 import { Loader2 } from 'lucide-react'
+import { MyBookingsPageSkeleton } from "@/components/skeletons/MyBookingsPageSkeleton";
+import { MobileBookingFilters } from '@/components/bookings/MobileBookingFilters'
 
 type Booking = {
   id: string
@@ -75,12 +77,13 @@ export default function MyBookingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          <p className="text-sm text-gray-500">Cargando reservas...</p>
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <AppSidebar />
+          <MyBookingsPageSkeleton />
+          <BottomNav />
         </div>
-      </div>
+      </SidebarProvider>
     )
   }
 
@@ -90,9 +93,11 @@ export default function MyBookingsPage() {
         <AppSidebar />
         <main className="flex-1">
           <div className="flex flex-col h-full">
-            <div className="flex-1 space-y-4 p-8 pt-6 pb-24 md:pb-8">
+            <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 pb-24 md:pb-8">
               <div className="flex items-center justify-between gap-4 mb-8">
-                <div className="relative w-64">
+                <h2 className="text-xl font-semibold md:hidden">Mis Reservas</h2>
+                
+                <div className="hidden lg:block relative w-64">
                   <Input
                     type="text"
                     placeholder="Buscar reservas..."
@@ -102,7 +107,18 @@ export default function MyBookingsPage() {
                   />
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </div>
-                <BookingTabs activeTab={activeTab} onTabChange={setActiveTab} />
+                <div className="hidden lg:block">
+                  <BookingTabs activeTab={activeTab} onTabChange={setActiveTab} />
+                </div>
+
+                <div className="lg:hidden">
+                  <MobileBookingFilters
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                  />
+                </div>
               </div>
               
               <div className="grid gap-4">
@@ -112,6 +128,7 @@ export default function MyBookingsPage() {
                     booking={booking}
                     onReschedule={handleReschedule}
                     onCancel={handleCancel}
+                    className="text-base md:text-lg"
                   />
                 ))}
 

@@ -28,6 +28,7 @@ import { es } from 'date-fns/locale'
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app/Sidebar"
 import { BottomNav } from "@/components/navigation/BottomNav"
+import { BookingConfirmation } from '@/components/bookings/BookingConfirmation'
 
 type Court = {
   id: string;
@@ -56,6 +57,9 @@ export default function BookingPage() {
   const [selectedCourtName, setSelectedCourtName] = useState<string | undefined>(undefined);
 
   const router = useRouter();
+
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmedBookingId, setConfirmedBookingId] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -123,7 +127,6 @@ export default function BookingPage() {
   const handleConfirmBooking = async () => {
     if (selectedCourt && selectedDate && selectedTimeRange) {
       try {
-        // Get current user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         
         if (userError || !user) {
@@ -138,7 +141,7 @@ export default function BookingPage() {
         const [startTime, endTime] = selectedTimeRange.split(' - ');
         const bookingDate = format(selectedDate, 'yyyy-MM-dd');
 
-        const { error } = await supabase.from('bookings').insert([
+        const { data, error } = await supabase.from('bookings').insert([
           {
             court_id: selectedCourt,
             booking_date: bookingDate,
@@ -147,27 +150,13 @@ export default function BookingPage() {
             status: 'confirmed',
             booked_by: user.id,
           },
-        ]);
+        ]).select();
 
         if (error) throw error;
 
-        toast({
-          title: '¡Reserva Exitosa!',
-          description: `Tu reserva ha sido procesada correctamente para ${format(
-            selectedDate,
-            'dd/MM/yyyy'
-          )} de ${startTime} a ${endTime} hs.`,
-          duration: 5000,
-        });
+        setConfirmedBookingId(data[0].id);
+        setShowConfirmation(true);
 
-        // Reset selections
-        setSelectedDate(undefined);
-        setSelectedCourt(undefined);
-        setSelectedCourtName(undefined);
-        setSelectedTimeRange(undefined);
-        setAvailableCourts([]);
-        setAvailableTimes([]);
-        setStep(1);
       } catch (error) {
         console.error('Error saving booking:', error);
         toast({
@@ -467,6 +456,26 @@ export default function BookingPage() {
         </main>
         <BottomNav />
       </div>
+      {showConfirmation && confirmedBookingId && (
+        <BookingConfirmation
+          bookingId={confirmedBookingId}
+          courtName={selectedCourtName || ''}
+          date={selectedDate!}
+          startTime={selectedTimeRange!.split(' - ')[0]}
+          endTime={selectedTimeRange!.split(' - ')[1]}
+          price={1200}
+          onClose={() => {
+            setShowConfirmation(false);
+            setSelectedDate(undefined);
+            setSelectedCourt(undefined);
+            setSelectedCourtName(undefined);
+            setSelectedTimeRange(undefined);
+            setAvailableCourts([]);
+            setAvailableTimes([]);
+            setStep(1);
+          }}
+        />
+      )}
     </SidebarProvider>
   )
 }

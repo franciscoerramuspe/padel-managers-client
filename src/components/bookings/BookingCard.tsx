@@ -65,6 +65,7 @@ export function BookingCard({ booking, onReschedule, onCancel }: BookingCardProp
                 size="sm"
                 className="text-gray-500 hover:text-gray-700"
                 onClick={() => setShowReceipt(true)}
+                disabled={!booking || !booking.court}
               >
                 <Receipt className="h-4 w-4 mr-1" />
                 Ver comprobante
@@ -92,7 +93,7 @@ export function BookingCard({ booking, onReschedule, onCancel }: BookingCardProp
       </div>
 
       {/* Booking Receipt Modal */}
-      {showReceipt && (
+      {showReceipt && booking && booking.court && (
         <BookingConfirmation
           bookingId={booking.id}
           courtName={booking.court.name}
@@ -100,6 +101,7 @@ export function BookingCard({ booking, onReschedule, onCancel }: BookingCardProp
           startTime={booking.start_time}
           endTime={booking.end_time}
           price={35}
+          players={booking.players || []}
           onClose={() => setShowReceipt(false)}
         />
       )}

@@ -10,6 +10,9 @@ import { Search } from 'lucide-react'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app/Sidebar'
 import { BottomNav } from '@/components/navigation/BottomNav'
+import { Loader2 } from 'lucide-react'
+import { MyBookingsPageSkeleton } from "@/components/skeletons/MyBookingsPageSkeleton";
+import { MobileBookingFilters } from '@/components/bookings/MobileBookingFilters'
 
 type Booking = {
   id: string
@@ -25,7 +28,7 @@ type Booking = {
 
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('upcoming')
   const [searchQuery, setSearchQuery] = useState('')
   const searchParams = useSearchParams()
@@ -33,28 +36,34 @@ export default function MyBookingsPage() {
 
   useEffect(() => {
     const fetchBookings = async () => {
-      if (!userId) return
+      try {
+        setIsLoading(true)
+        if (!userId) return
 
-      const { data, error } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          court:courts(name)
-        `)
-        .eq('booked_by', userId)
-        .order('booking_date', { ascending: true })
+        const { data, error } = await supabase
+          .from('bookings')
+          .select(`
+            *,
+            court:courts(name)
+          `)
+          .eq('booked_by', userId)
+          .order('booking_date', { ascending: true })
 
-      if (error) {
+        if (error) {
+          console.error('Error fetching bookings:', error)
+          return
+        }
+
+        setBookings(data)
+      } catch (error) {
         console.error('Error fetching bookings:', error)
-        return
+      } finally {
+        setIsLoading(false)
       }
-
-      setBookings(data)
-      setLoading(false)
     }
 
     fetchBookings()
-  }, [userId])
+  }, [activeTab])
 
   const handleReschedule = (id: string) => {
     // Implement rescheduling logic
@@ -66,8 +75,16 @@ export default function MyBookingsPage() {
     console.log('Cancel booking:', id)
   }
 
-  if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <AppSidebar />
+          <MyBookingsPageSkeleton />
+          <BottomNav />
+        </div>
+      </SidebarProvider>
+    )
   }
 
   return (
@@ -76,9 +93,11 @@ export default function MyBookingsPage() {
         <AppSidebar />
         <main className="flex-1">
           <div className="flex flex-col h-full">
-            <div className="flex-1 space-y-4 p-8 pt-6">
+            <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 pb-24 md:pb-8">
               <div className="flex items-center justify-between gap-4 mb-8">
-                <div className="relative w-64">
+                <h2 className="text-xl font-semibold md:hidden">Mis Reservas</h2>
+                
+                <div className="hidden lg:block relative w-64">
                   <Input
                     type="text"
                     placeholder="Buscar reservas..."
@@ -88,7 +107,18 @@ export default function MyBookingsPage() {
                   />
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </div>
-                <BookingTabs activeTab={activeTab} onTabChange={setActiveTab} />
+                <div className="hidden lg:block">
+                  <BookingTabs activeTab={activeTab} onTabChange={setActiveTab} />
+                </div>
+
+                <div className="lg:hidden">
+                  <MobileBookingFilters
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                  />
+                </div>
               </div>
               
               <div className="grid gap-4">
@@ -98,6 +128,7 @@ export default function MyBookingsPage() {
                     booking={booking}
                     onReschedule={handleReschedule}
                     onCancel={handleCancel}
+                    className="text-base md:text-lg"
                   />
                 ))}
 

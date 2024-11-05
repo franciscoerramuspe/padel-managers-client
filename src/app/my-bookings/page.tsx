@@ -10,6 +10,7 @@ import { Search } from 'lucide-react'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app/Sidebar'
 import { BottomNav } from '@/components/navigation/BottomNav'
+import { Loader2 } from 'lucide-react'
 
 type Booking = {
   id: string
@@ -25,7 +26,7 @@ type Booking = {
 
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('upcoming')
   const [searchQuery, setSearchQuery] = useState('')
   const searchParams = useSearchParams()
@@ -33,28 +34,34 @@ export default function MyBookingsPage() {
 
   useEffect(() => {
     const fetchBookings = async () => {
-      if (!userId) return
+      try {
+        setIsLoading(true)
+        if (!userId) return
 
-      const { data, error } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          court:courts(name)
-        `)
-        .eq('booked_by', userId)
-        .order('booking_date', { ascending: true })
+        const { data, error } = await supabase
+          .from('bookings')
+          .select(`
+            *,
+            court:courts(name)
+          `)
+          .eq('booked_by', userId)
+          .order('booking_date', { ascending: true })
 
-      if (error) {
+        if (error) {
+          console.error('Error fetching bookings:', error)
+          return
+        }
+
+        setBookings(data)
+      } catch (error) {
         console.error('Error fetching bookings:', error)
-        return
+      } finally {
+        setIsLoading(false)
       }
-
-      setBookings(data)
-      setLoading(false)
     }
 
     fetchBookings()
-  }, [userId])
+  }, [activeTab])
 
   const handleReschedule = (id: string) => {
     // Implement rescheduling logic
@@ -66,8 +73,15 @@ export default function MyBookingsPage() {
     console.log('Cancel booking:', id)
   }
 
-  if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          <p className="text-sm text-gray-500">Cargando reservas...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

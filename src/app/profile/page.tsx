@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye, EyeOff, Instagram, Facebook, ExternalLink } from "lucide-react";
+import { BottomNav } from "@/components/navigation/BottomNav"; 
 
 interface Profile {
   id: string;
@@ -222,7 +223,7 @@ export default function ProfilePage() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen">
+      <div className="flex min-h-screen w-full">
         <AppSidebar />
         <main className="flex-1 bg-gray-50">
           <div className="w-full h-full">
@@ -417,6 +418,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </main>
+        <BottomNav />
       </div>
     </SidebarProvider>
   );

@@ -230,7 +230,7 @@ export default function BookingPage() {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <main className="flex-1 bg-gradient-to-br from-blue-50 to-blue-100 p-4 md:p-8">
+        <main className="flex-1 bg-gradient-to-br from-blue-50 to-blue-100 p-4 pb-24 md:p-8">
           <div className="w-full max-w-[95%] lg:max-w-[80%] xl:max-w-[1200px] mx-auto">
             <Card className="border-none shadow-lg">
               <CardHeader className="bg-white rounded-t-xl border-b">

@@ -227,7 +227,7 @@ export default function ProfilePage() {
         <AppSidebar />
         <main className="flex-1 bg-gray-50">
           <div className="w-full h-full">
-            <div className="w-full bg-white min-h-screen p-6 md:p-8">
+            <div className="w-full bg-white min-h-screen p-6 pb-24 md:p-8">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-xl font-semibold">Perfil de Usuario</h2>
                 <div className="flex justify-end space-x-4">

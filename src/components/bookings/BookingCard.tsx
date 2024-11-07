@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { format } from 'date-fns'
+import { format, addHours, isBefore } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Clock, MapPin, MoreVertical, Receipt } from 'lucide-react'
+import { Clock, MapPin, MoreVertical, Receipt, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,12 +9,26 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { BookingConfirmation } from './BookingConfirmation'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface BookingCardProps {
   booking: any;
   onReschedule: (id: string) => void;
   onCancel: (id: string) => void;
+}
+
+const canModifyBooking = (bookingDate: string, startTime: string): boolean => {
+  const [hours, minutes] = startTime.split(':')
+  const bookingDateTime = new Date(bookingDate)
+  bookingDateTime.setHours(parseInt(hours), parseInt(minutes))
+
+  const now = new Date()
+
+  const twentyFourHoursBefore = addHours(bookingDateTime, -24)
+
+  return isBefore(now, twentyFourHoursBefore)
 }
 
 export function BookingCard({ booking, onReschedule, onCancel }: BookingCardProps) {
@@ -24,6 +38,8 @@ export function BookingCard({ booking, onReschedule, onCancel }: BookingCardProp
   const dayName = format(date, 'EEE', { locale: es })
   const month = format(date, 'MMM', { locale: es })
   
+  const isModificationAllowed = canModifyBooking(booking.booking_date, booking.start_time)
+
   return (
     <>
       <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
@@ -74,21 +90,58 @@ export function BookingCard({ booking, onReschedule, onCancel }: BookingCardProp
           </div>
 
           {/* Actions menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onReschedule(booking.id)}>
-                Reprogramar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onCancel(booking.id)}>
-                Cancelar
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  disabled={!isModificationAllowed || booking.status !== 'confirmed'}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem 
+                  onClick={() => onReschedule(booking.id)}
+                  disabled={!isModificationAllowed || booking.status !== 'confirmed'}
+                  className="cursor-pointer"
+                >
+                  <Clock className="h-4 w-4 mr-2" />
+                  Reprogramar
+                </DropdownMenuItem>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem 
+                      className="cursor-pointer text-red-600 focus:text-red-600"
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancelar
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer. La reserva será cancelada permanentemente.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => onCancel(booking.id)}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Confirmar Cancelación
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 

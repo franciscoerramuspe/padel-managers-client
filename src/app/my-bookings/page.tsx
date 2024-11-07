@@ -13,6 +13,8 @@ import { BottomNav } from '@/components/navigation/BottomNav'
 import { Loader2 } from 'lucide-react'
 import { MyBookingsPageSkeleton } from "@/components/skeletons/MyBookingsPageSkeleton";
 import { MobileBookingFilters } from '@/components/bookings/MobileBookingFilters'
+import { useRouter } from 'next/navigation'
+import { toast } from '@/hooks/toast'
 
 type Booking = {
   id: string
@@ -33,6 +35,7 @@ export default function MyBookingsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const searchParams = useSearchParams()
   const userId = searchParams.get('userId')
+  const router = useRouter()
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -65,15 +68,40 @@ export default function MyBookingsPage() {
     fetchBookings()
   }, [activeTab])
 
-  const handleReschedule = (id: string) => {
-    // Implement rescheduling logic
-    console.log('Reschedule booking:', id)
-  }
+  const handleReschedule = async (id: string) => {
+    // For rescheduling, we'll redirect to the booking page with the booking ID
+    router.push(`/book?reschedule=${id}`);
+  };
 
-  const handleCancel = (id: string) => {
-    // Implement cancellation logic
-    console.log('Cancel booking:', id)
-  }
+  const handleCancel = async (id: string) => {
+    try {
+      const response = await fetch(`/api/bookings/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to cancel booking');
+
+      // Refresh bookings list
+      const updatedBookings = bookings.map(booking => 
+        booking.id === id ? { ...booking, status: 'cancelled' } : booking
+      );
+      setBookings(updatedBookings);
+
+      toast({
+        title: 'Reserva cancelada',
+        description: 'Tu reserva ha sido cancelada exitosamente.',
+        duration: 5000,
+      });
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo cancelar la reserva. Por favor, intenta nuevamente.',
+        variant: 'destructive',
+        duration: 5000,
+      });
+    }
+  };
 
   if (isLoading) {
     return (

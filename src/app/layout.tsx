@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import FloatingSupport from "@/components/support/FloatingSupport"; 
 import { Toaster } from "@/components/ui/toaster";
-
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -24,8 +24,10 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${geistSans.variable} antialiased`}>
-        {children}
-        <Toaster />
+        <SidebarProvider defaultOpen={true}>
+          {children}
+          <Toaster />
+        </SidebarProvider>
       </body>
     </html>
   );

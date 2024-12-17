@@ -24,6 +24,7 @@ import { SkeletonWeatherWidget } from "@/components/dashboard/skeletons/Skeleton
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonCourtsGrid } from "@/components/dashboard/skeletons/SkeletonCourtsGrid";
 import { ClockWidget } from "@/components/dashboard/ClockWidget";
+import { TournamentBanner } from "@/components/dashboard/TournamentBanner"
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -57,12 +58,13 @@ export default function DashboardPage() {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <main className="flex-1 overflow-auto bg-gray-50 pb-16 md:pb-0">
+        <main className="flex-1 overflow-auto bg-[#FAF9F6] pb-16 md:pb-0">
           <div className="p-4 md:p-8 w-full">
             {loading ? (
               <>
                 <SkeletonWelcomeBanner />
                 <SkeletonQuickActions />
+                <div className="w-full h-[300px] bg-gray-100 rounded-2xl mb-8 animate-pulse" />
                 
                 {/* Desktop: Canchas Disponibles Skeleton */}
                 <div className="hidden lg:block mb-8">
@@ -102,6 +104,8 @@ export default function DashboardPage() {
                 />
                 <QuickActions />
                 
+                <TournamentBanner />
+                
                 {/* Desktop: Canchas Disponibles */}
                 <div className="hidden lg:block mb-8">
                   <div className="flex items-center justify-between mb-6">
@@ -125,7 +129,7 @@ export default function DashboardPage() {
                     </Button>
                   </div>
                   <CourtsCarousel
-                    courts={availableCourts}
+                    courts={availableCourts} 
                     onCourtSelect={(courtId) => router.push(`/courts/${courtId}`)}
                   />
                 </div>

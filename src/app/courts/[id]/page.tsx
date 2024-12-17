@@ -153,7 +153,7 @@ export default function CourtDetailPage() {
           </div>
 
           {/* Información de la cancha - Span completo */}
-          <div className="col-span-2 bg-white rounded-2xl p-8 shadow-sm">
+          <div className="col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-sm">
             <h3 className="text-xl font-semibold mb-6">Detalles de la cancha:</h3>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

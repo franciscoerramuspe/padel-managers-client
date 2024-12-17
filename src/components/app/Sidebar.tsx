@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { Calendar, Home, CircleUser, LandPlot, LogOut, ChevronsUpDown, UserCog } from "lucide-react"
+import { Calendar, Home, CircleUser, LandPlot, LogOut, ChevronsUpDown, Trophy } from "lucide-react"
 import { User } from '@supabase/supabase-js'
 import {
   Sidebar,
@@ -47,6 +47,11 @@ export function AppSidebar() {
       title: "Reservar una cancha",
       url: "/book",
       icon: LandPlot,
+    },
+    {
+      title: "Torneos",
+      url: "/tournaments",
+      icon: Trophy,
     },
   ]
 

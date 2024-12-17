@@ -29,6 +29,7 @@ export function BottomNav() {
       icon: Calendar 
     },
     { name: 'Reservar', href: '/book', icon: PlusSquare },
+    { name: 'Torneos', href: '/tournaments', icon: Trophy },
     { 
       name: 'Perfil',
       href: '/profile',

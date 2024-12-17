@@ -1,92 +1,114 @@
 "use client"
 
-import { useRef } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useRef, useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
 interface CategoryCarouselProps {
   categories: string[]
   selectedCategory: string | null
-  onCategoryChange: (category: string | null) => void
+  onSelectCategory: (category: string) => void
 }
 
 export function CategoryCarousel({
   categories,
   selectedCategory,
-  onCategoryChange,
+  onSelectCategory,
 }: CategoryCarouselProps) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [showLeftArrow, setShowLeftArrow] = useState(false)
+  const [showRightArrow, setShowRightArrow] = useState(false)
 
-  const scroll = (direction: "left" | "right") => {
-    const container = scrollContainerRef.current
-    if (!container) return
+  useEffect(() => {
+    const checkScroll = () => {
+      if (containerRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = containerRef.current
+        setShowLeftArrow(scrollLeft > 0)
+        setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5)
+      }
+    }
 
-    const scrollAmount = 200
-    const targetScroll = container.scrollLeft + (direction === "left" ? -scrollAmount : scrollAmount)
-    
-    container.scrollTo({
-      left: targetScroll,
-      behavior: "smooth"
-    })
+    checkScroll()
+    window.addEventListener('resize', checkScroll)
+    return () => window.removeEventListener('resize', checkScroll)
+  }, [])
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (containerRef.current) {
+      const scrollAmount = direction === 'left' ? -200 : 200
+      containerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    }
+  }
+
+  const handleScroll = () => {
+    if (containerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = containerRef.current
+      setShowLeftArrow(scrollLeft > 0)
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5)
+    }
   }
 
   return (
-    <div className="relative max-w-full">
-      {/* Botones de navegación y contenedor principal */}
-      <div className="flex items-center max-w-full">
-        {/* Botón izquierdo con gradiente */}
-        <div className="flex-none relative z-10">
-          <div className="absolute right-0 h-full w-4 bg-gradient-to-r from-white to-transparent" />
-          <button
-            onClick={() => scroll("left")}
-            className="relative h-8 w-8 flex items-center justify-center bg-white hover:bg-gray-50 border border-gray-200 rounded-full shadow-sm"
-            aria-label="Anterior"
-          >
-            <ChevronLeft className="h-4 w-4 text-gray-600" />
-          </button>
-        </div>
-
-        {/* Contenedor scrolleable */}
-        <div 
-          ref={scrollContainerRef}
-          className="flex-1 overflow-x-auto scrollbar-hide scroll-smooth mx-2"
+    <div className="relative group w-full">
+      {/* Botón izquierdo */}
+      {showLeftArrow && (
+        <button
+          onClick={() => scroll('left')}
+          className={cn(
+            "absolute left-0 top-1/2 -translate-y-1/2 z-10",
+            "h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center",
+            "bg-white rounded-lg shadow-sm border border-gray-100",
+            "text-gray-600 hover:text-gray-900 transition-colors",
+            "focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          )}
+          aria-label="Desplazar categorías a la izquierda"
         >
-          <div className="flex gap-2 w-max px-2">
-            <Button
-              size="sm"
-              variant={selectedCategory === null ? "default" : "outline"}
-              onClick={() => onCategoryChange(null)}
-              className="shrink-0 text-xs sm:text-sm h-8 whitespace-nowrap"
-            >
-              Todos
-            </Button>
-            {categories.map(category => (
-              <Button
-                key={category}
-                size="sm"
-                variant={selectedCategory === category ? "default" : "outline"}
-                onClick={() => onCategoryChange(category)}
-                className="shrink-0 text-xs sm:text-sm h-8 whitespace-nowrap"
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-        </div>
+          <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+        </button>
+      )}
 
-        {/* Botón derecho con gradiente */}
-        <div className="flex-none relative z-10">
-          <div className="absolute left-0 h-full w-4 bg-gradient-to-l from-white to-transparent" />
-          <button
-            onClick={() => scroll("right")}
-            className="relative h-8 w-8 flex items-center justify-center bg-white hover:bg-gray-50 border border-gray-200 rounded-full shadow-sm"
-            aria-label="Siguiente"
-          >
-            <ChevronRight className="h-4 w-4 text-gray-600" />
-          </button>
+      {/* Contenedor de categorías */}
+      <div
+        ref={containerRef}
+        onScroll={handleScroll}
+        className="overflow-x-auto scrollbar-hide scroll-smooth"
+      >
+        <div className="inline-flex gap-1.5 sm:gap-2 p-0.5 min-w-full">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => onSelectCategory(category)}
+              className={cn(
+                "px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg whitespace-nowrap transition-all",
+                "text-xs sm:text-sm font-medium",
+                "focus:outline-none focus:ring-2 focus:ring-blue-500/20",
+                selectedCategory === category
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+              )}
+            >
+              {category}
+            </button>
+          ))}
         </div>
       </div>
+
+      {/* Botón derecho */}
+      {showRightArrow && (
+        <button
+          onClick={() => scroll('right')}
+          className={cn(
+            "absolute right-0 top-1/2 -translate-y-1/2 z-10",
+            "h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center",
+            "bg-white rounded-lg shadow-sm border border-gray-100",
+            "text-gray-600 hover:text-gray-900 transition-colors",
+            "focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          )}
+          aria-label="Desplazar categorías a la derecha"
+        >
+          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+        </button>
+      )}
     </div>
   )
 }

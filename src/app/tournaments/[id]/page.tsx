@@ -76,13 +76,13 @@ export default function TournamentDetailPage() {
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-8">
                 {/* Descripción */}
-                <section className="bg-white rounded-2xl p-6 shadow-sm">
+                <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
                   <h2 className="text-xl font-semibold mb-4">Acerca del torneo</h2>
                   <p className="text-gray-600">{tournament.description}</p>
                 </section>
 
                 {/* Categorías y Cupos */}
-                <section className="bg-white rounded-2xl p-6 shadow-sm">
+                <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
                   <h2 className="text-xl font-semibold mb-4">Categorías y Cupos</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {Object.entries(tournament.availableSpots).map(([category, spots]) => {
@@ -118,7 +118,7 @@ export default function TournamentDetailPage() {
                 </section>
 
                 {/* Premios */}
-                <section className="bg-white rounded-2xl p-6 shadow-sm">
+                <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
                   <h2 className="text-xl font-semibold mb-4">Premios</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-yellow-50 rounded-xl p-4">
@@ -137,7 +137,7 @@ export default function TournamentDetailPage() {
                 </section>
 
                 {/* Cronograma */}
-                <section className="bg-white rounded-2xl p-6 shadow-sm">
+                <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
                   <h2 className="text-xl font-semibold mb-4">Cronograma</h2>
                   <div className="space-y-6">
                     {tournament.schedule.map((day, index) => (
@@ -166,7 +166,7 @@ export default function TournamentDetailPage() {
                 </section>
 
                 {/* Reglamento */}
-                <section className="bg-white rounded-2xl p-6 shadow-sm">
+                <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
                   <h2 className="text-xl font-semibold mb-4">Reglamento</h2>
                   <ul className="space-y-2">
                     {tournament.rules.map((rule, index) => (

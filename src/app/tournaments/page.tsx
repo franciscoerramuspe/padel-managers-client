@@ -5,7 +5,6 @@ import { Trophy } from "lucide-react"
 import { AppSidebar } from "@/components/app/Sidebar"
 import { BottomNav } from "@/components/navigation/BottomNav"
 import { TournamentCard } from "@/components/tournaments/TournamentCard"
-import { TournamentCarousel } from "@/components/tournaments/TournamentCarousel"
 import { TournamentFilters } from "@/components/tournaments/TournamentFilters"
 import { Tournament } from "@/types/tournament"
 import { DateRange } from "react-day-picker"
@@ -51,10 +50,10 @@ export default function TournamentsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="flex min-h-screen bg-gray-50 w-full">
       <AppSidebar />
-      <main className="flex-1 overflow-x-hidden">
-        <div className="flex flex-col min-h-full">
+      <main className="flex-1 overflow-x-hidden w-full">
+        <div className="flex flex-col min-h-full w-full">
           {/* Header Banner con gradiente moderno */}
           <div className="relative w-full bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600">
             {/* Efectos de fondo */}
@@ -78,8 +77,8 @@ export default function TournamentsPage() {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 w-full px-4 py-4 sm:px-6 sm:py-6 md:px-8 md:py-8">
-            <div className="max-w-7xl mx-auto w-full">
+          <div className="flex-1 w-full px-4 py-6 sm:px-6 md:px-8">
+            <div className="w-full">
               {/* Filtros */}
               <TournamentFilters
                 searchQuery={searchQuery}

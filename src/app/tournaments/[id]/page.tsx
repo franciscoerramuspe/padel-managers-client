@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Trophy, MapPin, Calendar, Clock, Users, ChevronLeft, ExternalLink, Car, Info } from "lucide-react"
 import { AppSidebar } from "@/components/app/Sidebar"
 import { BottomNav } from "@/components/navigation/BottomNav"
@@ -16,6 +16,7 @@ import { MOCK_TOURNAMENTS } from "@/mocks/tournaments"
 
 export default function TournamentDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const tournament = MOCK_TOURNAMENTS.find(t => t.id === Number(params.id))
 
   if (!tournament) {
@@ -45,7 +46,7 @@ export default function TournamentDetailPage() {
             <Button
               variant="ghost"
               className="text-white mb-4 hover:bg-white/10"
-              onClick={() => router.back()}
+              onClick={() => router.back()} 
             >
               <ChevronLeft className="w-5 h-5 mr-2" />
               Volver a Torneos
@@ -177,15 +178,20 @@ export default function TournamentDetailPage() {
             <div className="space-y-6">
               {/* Inscripción */}
               <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-2xl font-bold">${tournament.price}</h3>
-                  <span className="text-gray-500">por equipo</span>
-                </div>
-                <Button className="w-full mb-4">Inscribirse ahora</Button>
-                <p className="text-sm text-gray-500 mb-4">
-                  Fecha límite de inscripción: {formatDate(tournament.registrationDeadline)}
-                </p>
-              </section>
+  <div className="flex justify-between items-center mb-4">
+    <h3 className="text-2xl font-bold">${tournament.price}</h3>
+    <span className="text-gray-500">por equipo</span>
+  </div>
+  <Button 
+    className="w-full mb-4"
+    onClick={() => router.push(`/tournaments/${tournament.id}/register`)}
+  >
+    Inscribirse ahora
+  </Button>
+  <p className="text-sm text-gray-500 mb-4">
+                    Fecha límite de inscripción: {formatDate(tournament.registrationDeadline)}
+                  </p>
+                </section>
 
               {/* Sede */}
               <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">

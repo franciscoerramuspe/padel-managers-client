@@ -78,42 +78,6 @@ export default function TournamentDetailPage() {
                   <p className="text-gray-600">{tournament.description}</p>
                 </section>
 
-                {/* Categorías y Cupos */}
-                <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4">Categorías y Cupos</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {Object.entries(tournament.availableSpots).map(([category, spots]) => {
-                      const totalSpots = tournament.totalTeams[category]
-                      const isAlmostFull = spots <= 3
-                      const percentage = (spots / totalSpots) * 100
-
-                      return (
-                        <div
-                          key={category}
-                          className="bg-gray-50 rounded-xl p-4"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium">{category}</span>
-                            <span className={
-                              isAlmostFull ? "text-red-600" : "text-green-600"
-                            }>
-                              {spots}/{totalSpots} cupos
-                            </span>
-                          </div>
-                          <div className="h-2 bg-gray-200 rounded-full">
-                            <div
-                              className={`h-full rounded-full ${
-                                isAlmostFull ? "bg-red-500" : "bg-green-500"
-                              }`}
-                              style={{ width: `${100 - percentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </section>
-
                 {/* Premios */}
                 <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
                   <h2 className="text-xl font-semibold mb-4">Premios</h2>
@@ -130,35 +94,6 @@ export default function TournamentDetailPage() {
                       <div className="text-orange-600 font-medium mb-1">3° Lugar</div>
                       <div className="text-gray-700">{tournament.prizes.thirdPlace}</div>
                     </div>
-                  </div>
-                </section>
-
-                {/* Cronograma */}
-                <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4">Cronograma</h2>
-                  <div className="space-y-6">
-                    {tournament.schedule.map((day, index) => (
-                      <div key={index}>
-                        <h3 className="font-medium text-gray-900 mb-3">
-                          {formatDate(day.date)}
-                        </h3>
-                        <div className="space-y-3">
-                          {day.events.map((event, eventIndex) => (
-                            <div key={eventIndex} className="flex gap-4">
-                              <div className="text-blue-600 font-medium w-20">
-                                {event.time}
-                              </div>
-                              <div className="text-gray-600">
-                                {event.description}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        {index < tournament.schedule.length - 1 && (
-                          <Separator className="my-4" />
-                        )}
-                      </div>
-                    ))}
                   </div>
                 </section>
 

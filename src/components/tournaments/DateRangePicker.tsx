@@ -69,11 +69,11 @@ export function DateRangePicker({
             defaultMonth={date?.from}
             selected={date}
             onSelect={onDateChange}
-            numberOfMonths={2}
+            numberOfMonths={1}
             locale={es}
             className="bg-white"
             classNames={{
-              months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+              months: "flex flex-col space-y-4",
               month: "space-y-4",
               caption: "flex justify-center pt-1 relative items-center mb-2",
               caption_label: "text-sm font-medium text-gray-900",

@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress'
 import { AppSidebar } from '@/components/app/Sidebar'
 import { BottomNav } from '@/components/navigation/BottomNav'
 import { TournamentBanner } from '@/components/tournaments/registration/TournamentBanner'
+import { SidebarProvider } from '@/components/ui/sidebar'
 
 interface FormData {
   teamName: string;
@@ -63,83 +64,85 @@ export default function TournamentRegistrationPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50 w-full">
-      <AppSidebar />
-      <main className="flex-1 overflow-x-hidden w-full">
-        <div className="max-w-3xl mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <button
-              onClick={() => router.back()}
-              className="text-sm text-gray-600 hover:text-gray-900 mb-4 flex items-center"
-            >
-              ← Volver al torneo
-            </button>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Inscripción: {tournament.name}
-            </h1>
-          </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen bg-gray-50 w-full">
+        <AppSidebar />
+        <main className="flex-1 overflow-x-hidden w-full">
+          <div className="max-w-3xl mx-auto px-4 py-8">
+            {/* Header */}
+            <div className="mb-8">
+              <button
+                onClick={() => router.back()}
+                className="text-sm text-gray-600 hover:text-gray-900 mb-4 flex items-center"
+              >
+                ← Volver al torneo
+              </button>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Inscripción: {tournament.name}
+              </h1>
+            </div>
 
-          {/* Banner */}
-          <div className="mb-8">
-            <TournamentBanner tournament={tournament} />
-          </div>
+            {/* Banner */}
+            <div className="mb-8">
+              <TournamentBanner tournament={tournament} />
+            </div>
 
-          {/* Progress */}
-          <div className="mb-8">
-            <Progress value={progress} className="h-2" />
-            <div className="mt-2 text-sm text-gray-600">
-              Paso {currentStep} de {steps.length}
+            {/* Progress */}
+            <div className="mb-8">
+              <Progress value={progress} className="h-2" />
+              <div className="mt-2 text-sm text-gray-600">
+                Paso {currentStep} de {steps.length}
+              </div>
+            </div>
+
+            {/* Form Steps */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <AnimatePresence mode="wait">
+                {currentStep === 1 && (
+                  <TeamInfoStep
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    onNext={handleNext}
+                  />
+                )}
+                {currentStep === 2 && (
+                  <CategoryStep
+                    tournament={tournament}
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    onNext={handleNext}
+                    onBack={handleBack}
+                  />
+                )}
+                {currentStep === 3 && (
+                  <PlayersStep
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    onNext={handleNext}
+                    onBack={handleBack}
+                  />
+                )}
+                {currentStep === 4 && (
+                  <PaymentStep
+                    tournament={tournament}
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    onNext={handleNext}
+                    onBack={handleBack}
+                  />
+                )}
+                {currentStep === 5 && (
+                  <ConfirmationStep
+                    tournament={tournament}
+                    formData={formData}
+                  />
+                )}
+              </AnimatePresence>
             </div>
           </div>
-
-          {/* Form Steps */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <AnimatePresence mode="wait">
-              {currentStep === 1 && (
-                <TeamInfoStep
-                  formData={formData}
-                  updateFormData={updateFormData}
-                  onNext={handleNext}
-                />
-              )}
-              {currentStep === 2 && (
-                <CategoryStep
-                  tournament={tournament}
-                  formData={formData}
-                  updateFormData={updateFormData}
-                  onNext={handleNext}
-                  onBack={handleBack}
-                />
-              )}
-              {currentStep === 3 && (
-                <PlayersStep
-                  formData={formData}
-                  updateFormData={updateFormData}
-                  onNext={handleNext}
-                  onBack={handleBack}
-                />
-              )}
-              {currentStep === 4 && (
-                <PaymentStep
-                  tournament={tournament}
-                  formData={formData}
-                  updateFormData={updateFormData}
-                  onNext={handleNext}
-                  onBack={handleBack}
-                />
-              )}
-              {currentStep === 5 && (
-                <ConfirmationStep
-                  tournament={tournament}
-                  formData={formData}
-                />
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      </main>
-      <BottomNav />
-    </div>
+        </main>
+        <BottomNav />
+      </div>
+    </SidebarProvider>
   )
 }

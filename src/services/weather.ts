@@ -1,5 +1,5 @@
 const WEATHER_API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-const CITY = 'Paysandu,UY';
+const CITY = 'Montevideo,UY';
 
 export interface WeatherData {
   temp: number;

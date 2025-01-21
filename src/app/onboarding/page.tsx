@@ -10,24 +10,24 @@ import { Button } from '@/components/ui/button';
 
 const slides = [
   {
-    title: "Encuentra tu Cancha Perfecta",
-    subtitle: "Descubre las mejores canchas de pádel cerca de ti",
+    title: "Únete a las Mejores Ligas",
+    subtitle: "Participa en ligas competitivas de pádel y mejora tu nivel",
     imagePath: "/assets/welcome.png",
-    highlightWord: "Perfecta",
+    highlightWord: "Ligas",
     titleColor: "blue"
   },
   {
-    title: "Reserva en Segundos",
-    subtitle: "Proceso simple y rápido para asegurar tu horario ideal",
+    title: "Inscríbete a Torneos",
+    subtitle: "Encuentra y regístrate en torneos de tu categoría fácilmente",
     imagePath: "/assets/step2.png",
-    highlightWord: "Segundos",
+    highlightWord: "Torneos",
     titleColor: "orange"
   },
   {
-    title: "Juega con Amigos",
-    subtitle: "Organiza partidos y comparte tus reservas fácilmente",
+    title: "Compite y Crece",
+    subtitle: "Sigue tu progreso y escala posiciones en el ranking",
     imagePath: "/assets/step3.png",
-    highlightWord: "Amigos",
+    highlightWord: "Crece",
     titleColor: "green"
   }
 ];
